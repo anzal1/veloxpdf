@@ -1535,6 +1535,67 @@ function base64ToBytes(b64) {
   return out;
 }
 
+// Browser versions of /api/verify and /api/benchmark, used when there is no server.
+async function verifyInBrowser(pdfBase64, tamper1Byte = false, tamperOffset = 32) {
+  await engineReady;
+  if (!window.VeloxPDF?.verifyPdfSignatureAsync) throw new Error('Browser engine not loaded');
+  const bytes = base64ToBytes(pdfBase64);
+  let offset = null;
+  if (tamper1Byte) {
+    offset = tamperOffset >= bytes.length ? bytes.length - 10 : tamperOffset;
+    bytes[offset] ^= 0x55;
+  }
+  const t0 = performance.now();
+  const v = await window.VeloxPDF.verifyPdfSignatureAsync(bytes);
+  const verifyMs = +(performance.now() - t0).toFixed(3);
+  return {
+    ...v,
+    valid: Boolean(v.valid),
+    tampered: tamper1Byte,
+    tamperOffset: offset,
+    verifyMs,
+    signedAt: v.signedAt || v.signingTime || '',
+    error: v.error || (v.valid ? null : 'Cryptographic digest mismatch: content was altered after signing'),
+  };
+}
+
+function timeRuns(fn, iterations) {
+  for (let i = 0; i < 8; i++) fn();
+  const times = [];
+  for (let i = 0; i < iterations; i++) {
+    const t0 = performance.now();
+    fn();
+    times.push(performance.now() - t0);
+  }
+  times.sort((a, b) => a - b);
+  const avg = times.reduce((acc, v) => acc + v, 0) / times.length;
+  return { p50: +times[Math.floor(times.length * 0.5)].toFixed(3), p95: +times[Math.floor(times.length * 0.95)].toFixed(3), avg };
+}
+
+async function benchmarkInBrowser(iterations, html, data) {
+  await engineReady;
+  const V = window.VeloxPDF;
+  if (!V?.htmlToPdf || !V?.compilePdfTemplate) throw new Error('Browser engine not loaded');
+  const opts = { data, format: 'A4', sign: false, compress: false };
+  const tCold0 = performance.now();
+  V.htmlToPdf(html, opts);
+  const veloxColdMs = +(performance.now() - tCold0).toFixed(3);
+  const warm = timeRuns(() => V.htmlToPdf(html, opts), iterations);
+  // A compiled render is shorter than the browser's timer resolution, so time batches of 20
+  // and take the median per-render time across batches.
+  const compiled = V.compilePdfTemplate(html, data);
+  const param = timeRuns(() => { for (let k = 0; k < 20; k++) compiled(data); }, iterations);
+  param.p50 = +(param.p50 / 20).toFixed(3);
+  return {
+    iterations,
+    veloxColdMs,
+    veloxWarmP50Ms: warm.p50,
+    veloxWarmP95Ms: warm.p95,
+    veloxPagesPerSec: Math.round(1000 / Math.max(0.001, warm.avg)),
+    veloxParametricP50Ms: param.p50,
+  };
+}
+
 async function renderPdfBuffer(base64Data) {
   if (typeof pdfjsLib === 'undefined') {
     canvas.style.display = 'none';
@@ -1699,7 +1760,7 @@ async function runTamperTest(mutate) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pdfBase64: currentPdfBase64, tamper1Byte: mutate, tamperOffset: 32 }),
     });
-    const data = await res.json();
+    const data = res.ok ? await res.json() : await verifyInBrowser(currentPdfBase64, mutate, 32);
     isTampered = mutate;
     updateTamperInspectorUI(data, mutate, data.verifyMs);
     updateSigBadge();
@@ -1720,7 +1781,8 @@ async function runLiveBenchmark() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ iterations: 50, html: htmlEd.value, data: getFormData() }),
     });
-    const b = await res.json();
+    // Let the button label paint before the in-browser run blocks the main thread.
+    const b = res.ok ? await res.json() : await new Promise((r) => setTimeout(r, 30)).then(() => benchmarkInBrowser(50, htmlEd.value, getFormData()));
     document.getElementById('bench-cold').textContent = formatMs(b.veloxColdMs);
     document.getElementById('bench-p50').textContent = `${formatMs(b.veloxWarmP50Ms)}, ${Number(b.veloxPagesPerSec).toLocaleString()} pages/s`;
     document.getElementById('bench-p95').textContent = formatMs(b.veloxWarmP95Ms);
@@ -1828,11 +1890,16 @@ async function handlePdfFile(file) {
     if (match && match[1]) { try { embeddedJson = JSON.parse(match[1].trim()); } catch {} }
     if (!embeddedJson && window.VeloxPDF?.extractEmbeddedData) { try { embeddedJson = window.VeloxPDF.extractEmbeddedData(u8); } catch {} }
     const hasSignature = binary.includes('/ByteRange') && binary.includes('/Contents');
+    let verification = { valid: false, present: hasSignature, error: 'This file has no signature.' };
+    if (hasSignature) {
+      try { verification = { present: true, ...(await verifyInBrowser(base64)) }; }
+      catch { verification = { valid: false, present: true, error: 'A signature is present but could not be checked in this browser.' }; }
+    }
     inspectResult = {
       ok: true,
       fileName: file.name,
       sizeBytes: u8.length,
-      verification: { valid: false, present: hasSignature, error: hasSignature ? 'A signature is present but could not be checked without the server.' : 'This file has no signature.' },
+      verification,
       embeddedData: embeddedJson,
       csvText: generateCsvFromData(embeddedJson),
     };
