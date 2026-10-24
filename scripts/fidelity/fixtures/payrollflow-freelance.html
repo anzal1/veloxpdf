@@ -1,0 +1,89 @@
+<!-- Source: templates/invoice-template.html from github.com/PayrollFlow/freelance-invoice-templates. Copyright (c) 2026 PayrollFlow. MIT licence, see SOURCES.md. Sample data filled in; remote fonts removed; images point at a local placeholder. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Invoice [INV-0001]</title>
+<style>
+  :root { --ink:#0f172a; --mute:#64748b; --border:#e2e8f0; --brand:#53CF6F; }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.6 -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: var(--ink); max-width: 800px; margin: 40px auto; padding: 0 24px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid var(--brand); padding-bottom: 16px; }
+  h1 { font-size: 32px; letter-spacing: -0.02em; margin: 0; }
+  .muted { color: var(--mute); }
+  .meta { text-align: right; font-size: 13px; }
+  .cols { display: flex; justify-content: space-between; gap: 24px; margin: 24px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+  th { background: #f8fafc; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--mute); }
+  td.num, th.num { text-align: right; }
+  .totals { margin-left: auto; width: 280px; }
+  .totals td { border: none; padding: 6px 12px; }
+  .grand { font-size: 18px; font-weight: 700; border-top: 2px solid var(--ink) !important; }
+  .pay { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 24px 0; }
+  .warn { border-left: 4px solid #f59e0b; background: #fffbeb; padding: 10px 14px; border-radius: 4px; font-size: 13px; }
+  footer { margin-top: 40px; font-size: 11px; color: var(--mute); border-top: 1px solid var(--border); padding-top: 12px; }
+  @media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Invoice</h1>
+      <div class="muted">[Your Name / Business Name]</div>
+    </div>
+    <div class="meta">
+      <div><strong>[INV-0001]</strong></div>
+      <div class="muted">Issued: [YYYY-MM-DD]</div>
+      <div class="muted">Due: [YYYY-MM-DD]</div>
+    </div>
+  </header>
+
+  <div class="cols">
+    <div>
+      <div class="muted">From</div>
+      [Your Name]<br />
+      [Address]<br />
+      [Email]<br />
+      [Tax ID, if applicable]
+    </div>
+    <div>
+      <div class="muted">Bill to</div>
+      [Client Name / Company]<br />
+      [Client Address]<br />
+      [Client Email]
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>[Description of work]</td><td class="num">1</td><td class="num">[0.00]</td><td class="num">[0.00]</td></tr>
+      <tr><td>[Description]</td><td class="num">1</td><td class="num">[0.00]</td><td class="num">[0.00]</td></tr>
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr><td>Subtotal</td><td class="num">[0.00]</td></tr>
+    <tr><td>Tax ([0]%)</td><td class="num">[0.00]</td></tr>
+    <tr class="grand"><td>Total due</td><td class="num">[0.00] [USD]</td></tr>
+  </table>
+
+  <div class="pay">
+    <strong>Payment instructions</strong>
+    <p><strong>Bank:</strong> [Name] · IBAN [Number] · SWIFT/BIC [Code]</p>
+    <p><strong>USDT (if agreed):</strong> Network <strong>[TRC20 / ERC20 / BEP20]</strong> · Address <code>[wallet address]</code></p>
+    <div class="warn">⚠️ For crypto payments, confirm the <strong>network</strong> before sending. TRC20 addresses start with <code>T</code>; ERC20/BEP20 use <code>0x…</code>. Wrong-network transfers can be permanently lost. Reference <strong>[INV-0001]</strong>.</div>
+  </div>
+
+  <p class="muted">Terms: payment due by [due date]. [Late payments may incur a [0]% monthly fee.]</p>
+
+  <footer>
+    Free invoice templates: github.com/PayrollFlow/freelance-invoice-templates ·
+    Collect payments and withdraw in USDT (TRC20/ERC20/BEP20) or to your bank with PayrollFlow → payrollflow.io
+  </footer>
+</body>
+</html>

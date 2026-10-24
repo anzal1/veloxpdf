@@ -1,0 +1,238 @@
+<!-- Source: public/invoice-templates/freelancer/neon-blue.html from github.com/tociva/free-invoice-generator. Copyright (c) 2025 Prince Francis. MIT licence, see SOURCES.md. Sample data filled in; remote fonts removed; images point at a local placeholder. -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Blue Invoice</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #0d0d0d;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .invoice-container {
+            width: 210mm;
+            background: #111;
+            border: 2px solid #0ff;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #0ff, #0077ff);
+            padding: 30px;
+            border-radius: 10px;
+            color: #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invoice-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+        }
+
+        .logo img {
+            width: 70px;
+            height: 70px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .org-info,
+        .invoice-details {
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            color: #eee;
+        }
+
+        thead {
+            background: #0ff;
+            color: #111;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        table th:nth-child(2),
+        table th:nth-child(3),
+        table th:nth-child(4),
+        table th:nth-child(5),
+        table th:nth-child(6),
+        table td:nth-child(2),
+        table td:nth-child(3),
+        table td:nth-child(4),
+        table td:nth-child(5),
+        table td:nth-child(6) {
+            text-align: right;
+        }
+
+        .totals {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .final {
+            font-size: 1.2rem;
+            color: #0ff;
+            font-weight: bold;
+        }
+
+        .footer {
+            background: #0d0d0d;
+            border-top: 1px solid #0ff;
+            margin-top: 20px;
+            padding-top: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .footer-section {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .terms,
+        .notes {
+            max-width: 50%;
+        }
+
+        .payment-info,
+        .contact-info {
+            text-align: right;
+        }
+
+        .notes {
+            border-left: 3px solid #0ff;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <h1 class="invoice-title">INVOICE</h1>
+            <div class="logo"><img src="placeholder-logo.png" alt="Logo"></div>
+        </div>
+        <div class="org-info">
+            <strong>Northwind Studio</strong><br>
+            billing@northwind.example | +1 555 0100<br>
+            12345 Sunny Road, Sunnyville, CA 12345
+        </div>
+        <div class="invoice-details">
+            <strong>Bill To:</strong><br>
+            Acme Corp.<br>
+            jane@acme.example<br>
+            +1 555 0142<br>
+            742 Evergreen Terrace, Springfield<br><br>
+            Invoice #: INV-2026-0412<br>
+            Date: October 24, 2026<br>
+            Due: November 24, 2026
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>Website design</td>
+                    <td>1</td>
+                    <td>$25.00</td>
+                    <td>$25.00</td>
+                </tr>
+                
+                <tr>
+                    <td>Hosting (3 months)</td>
+                    <td>2</td>
+                    <td>$62.00</td>
+                    <td>$124.00</td>
+                </tr>
+                
+                <tr>
+                    <td>Domain name (1 year)</td>
+                    <td>3</td>
+                    <td>$99.00</td>
+                    <td>$297.00</td>
+                </tr>
+                
+                <tr>
+                    <td>Logo refresh</td>
+                    <td>4</td>
+                    <td>$136.00</td>
+                    <td>$544.00</td>
+                </tr>
+                
+                <tr>
+                    <td>Monthly maintenance</td>
+                    <td>1</td>
+                    <td>$173.00</td>
+                    <td>$173.00</td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <div class="totals">
+            <p>Subtotal: $370.00</p>
+            <p>Discount: -$15.00</p>
+            <p class="final">Total: $403.30</p>
+        </div>
+        <div class="footer">
+            <div class="notes">
+                <strong>Notes:</strong> Thank you for your business.
+            </div>
+            <div class="footer-section">
+                <div class="terms">
+                    <strong>Terms & Conditions:</strong>
+                    <p>Payment is due within 30 days. Late payments may incur a 1.5% monthly fee.</p>
+                </div>
+                <div class="contact-info">
+                    <p>Email: billing@northwind.example</p>
+                    <p>Phone: +1 555 0100</p>
+                </div>
+            </div>
+            <div class="payment-info">
+                <strong>Payment Details:</strong>
+                <p>Bank: First Example Bank</p>
+                <p>Account: 0123456789</p>
+                <p>Account Name: Northwind Studio LLC</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

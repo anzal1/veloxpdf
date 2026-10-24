@@ -1,0 +1,62 @@
+name: Release
+
+# Publishes to npm, run by hand (Actions tab, Release, Run workflow) when the package should go out.
+# It skips if this version is already on npm. Uses npm trusted publishing (OIDC); no npm token is stored.
+# One-time setup per package, done by hand on npmjs.com: package settings, Trusted Publisher,
+# GitHub Actions, repository anzal1/veloxpdf, workflow file release.yml.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Check whether this version is already on npm
+        id: version
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if OUT=$(npm view "$NAME@$VERSION" version 2>&1); then
+            echo "$NAME@$VERSION is already on npm. Nothing to publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          elif echo "$OUT" | grep -q "E404"; then
+            echo "$NAME@$VERSION is not on npm yet."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Could not check npm:"
+            echo "$OUT"
+            exit 1
+          fi
+
+      - name: Test
+        if: steps.version.outputs.publish == 'true'
+        run: npm test
+
+      - name: Build browser bundle
+        if: steps.version.outputs.publish == 'true'
+        run: npm run build:browser
+
+      - name: Publish with provenance
+        if: steps.version.outputs.publish == 'true'
+        run: npm publish --provenance --access public

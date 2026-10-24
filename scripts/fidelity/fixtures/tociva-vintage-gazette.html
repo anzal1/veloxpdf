@@ -1,0 +1,225 @@
+<!-- Source: public/invoice-templates/simple-design/vintage-gazette.html from github.com/tociva/free-invoice-generator. Copyright (c) 2025 Prince Francis. MIT licence, see SOURCES.md. Sample data filled in; remote fonts removed; images point at a local placeholder. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newspaper Invoice (A4)</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background: #fdfcfb;
+      color: #333;
+    }
+
+    .invoice-wrapper {
+      width: 210mm;
+      height: 297mm; /* A4 height */
+      margin: auto;
+      padding: 15mm;
+      background: #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      margin-bottom: 10mm;
+    }
+    .header h1 {
+      font-size: 36px;
+      margin: 0;
+      font-family: 'Times New Roman', serif;
+      letter-spacing: 2px;
+    }
+    .header img {
+      height: 60px;
+      margin-bottom: 10px;
+    }
+
+    /* Info Section */
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 10mm;
+    }
+    .info-box {
+      width: 48%;
+    }
+    .info-box h3 {
+      font-size: 16px;
+      margin: 0 0 5px;
+      border-bottom: 1px solid #333;
+      display: inline-block;
+    }
+
+    /* Table Section */
+    .table-section {
+      margin-bottom: 10mm;
+      flex: 1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #333;
+    }
+    th {
+      text-transform: uppercase;
+      background: #f1f1f1;
+    }
+
+    /* Totals */
+    .totals {
+      text-align: right;
+      font-size: 14px;
+      margin-bottom: 10mm;
+    }
+    .totals div {
+      margin-bottom: 4px;
+    }
+    .totals .total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    th:nth-child(n+2),
+    td:nth-child(n+2) {
+      text-align: right;
+    }
+
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      border-top: 2px solid #000;
+      padding-top: 5mm;
+      margin-top: auto;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-wrapper">
+    <!-- Header -->
+    <div class="header">
+      <img src="placeholder-logo.png" alt="Logo" />
+      <h1>INVOICE</h1>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+      <div class="info-box">
+        <h3>Bill From</h3>
+        Northwind Studio<br>
+        12345 Sunny Road, Sunnyville, CA 12345<br>
+        +1 555 0100<br>
+        billing@northwind.example
+      </div>
+      <div class="info-box" style="text-align:right;">
+        <h3>Bill To</h3>
+        Acme Corp.<br>
+        742 Evergreen Terrace, Springfield<br>
+        +1 555 0142<br>
+        jane@acme.example
+      </div>
+    </div>
+
+    <!-- Invoice Info -->
+    <div class="info-section">
+      <div class="info-box">
+        <h3>Invoice Details</h3>
+        Invoice #: INV-2026-0412<br>
+        Date: October 24, 2026<br>
+        Due: November 24, 2026
+      </div>
+      <div class="info-box" style="text-align:right;">
+        <h3>Payment Info</h3>
+        Bank: First Example Bank<br>
+        Account: Northwind Studio LLC<br>
+        No: 0123456789
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>Website design</td>
+            <td>1</td>
+            <td>25.00</td>
+            <td>25.00</td>
+          </tr>
+          
+          <tr>
+            <td>Hosting (3 months)</td>
+            <td>2</td>
+            <td>62.00</td>
+            <td>124.00</td>
+          </tr>
+          
+          <tr>
+            <td>Domain name (1 year)</td>
+            <td>3</td>
+            <td>99.00</td>
+            <td>297.00</td>
+          </tr>
+          
+          <tr>
+            <td>Logo refresh</td>
+            <td>4</td>
+            <td>136.00</td>
+            <td>544.00</td>
+          </tr>
+          
+          <tr>
+            <td>Monthly maintenance</td>
+            <td>1</td>
+            <td>173.00</td>
+            <td>173.00</td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Totals -->
+    <div class="totals">
+      Item Total: 385.00<br>
+        Discount: 15.00<br>
+        Subtotal: 370.00<br>
+        Round Off: 0.00<br>
+      <div class="total">Grand Total: 403.30</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      Contact us: billing@northwind.example | +1 555 0100 | northwind.example<br>
+      Thank you for your business!
+    </div>
+  </div>
+</body>
+</html>

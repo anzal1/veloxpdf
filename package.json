@@ -1,0 +1,112 @@
+{
+  "name": "veloxpdf",
+  "version": "0.1.0",
+  "description": "HTML, CSS and Tailwind templates to signed vector PDF in plain JavaScript. No browser, zero dependencies.",
+  "keywords": [
+    "pdf",
+    "pdf-generation",
+    "html-to-pdf",
+    "tailwind",
+    "invoice",
+    "digital-signature",
+    "pkcs7",
+    "x509",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "cloudflare-workers",
+    "no-browser",
+    "zero-dependencies"
+  ],
+  "homepage": "https://github.com/anzal1/veloxpdf#readme",
+  "bugs": {
+    "url": "https://github.com/anzal1/veloxpdf/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anzal1/veloxpdf.git"
+  },
+  "license": "MIT",
+  "author": "Anzal Abidi <anzalabidi@gmail.com>",
+  "type": "module",
+  "main": "./src/index.mjs",
+  "module": "./src/index.mjs",
+  "types": "./types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "dom-vm": [
+        "types/dom-vm.d.ts"
+      ],
+      "css-tailwind": [
+        "types/css-tailwind.d.ts"
+      ],
+      "layout": [
+        "types/layout.d.ts"
+      ],
+      "pdf-writer": [
+        "types/pdf-writer.d.ts"
+      ],
+      "pdf-signer": [
+        "types/pdf-signer.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "./dom-vm": {
+      "types": "./types/dom-vm.d.ts",
+      "default": "./src/dom-vm.mjs"
+    },
+    "./css-tailwind": {
+      "types": "./types/css-tailwind.d.ts",
+      "default": "./src/css-tailwind.mjs"
+    },
+    "./layout": {
+      "types": "./types/layout.d.ts",
+      "default": "./src/layout-engine.mjs"
+    },
+    "./pdf-writer": {
+      "types": "./types/pdf-writer.d.ts",
+      "default": "./src/pdf-writer.mjs"
+    },
+    "./pdf-signer": {
+      "types": "./types/pdf-signer.d.ts",
+      "default": "./src/pdf-signer.mjs"
+    },
+    "./browser": "./public/veloxpdf.browser.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "veloxpdf": "./bin/veloxpdf.mjs",
+    "veloxpdf-mcp": "./bin/veloxpdf-mcp.mjs"
+  },
+  "files": [
+    "src",
+    "bin",
+    "types",
+    "fonts",
+    "assets",
+    "server.mjs",
+    "public",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": [
+    "./public/veloxpdf.browser.js"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/veloxpdf.test.mjs test/mcp.test.mjs",
+    "bench": "node ./benchmark.mjs",
+    "build:browser": "node scripts/build-browser.mjs",
+    "start": "node ./server.mjs",
+    "studio": "node ./server.mjs",
+    "prepublishOnly": "npm test && npm run build:browser"
+  }
+}

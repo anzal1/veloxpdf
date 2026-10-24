@@ -1,0 +1,258 @@
+<!-- Source: invoice2css.html from github.com/LurePot/bootstrap-_invoice_html. Copyright (c) 2023 Imran Islam. MIT licence, see SOURCES.md. Sample data filled in; remote fonts removed; images point at a local placeholder. -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Invoice by @lurepot</title>
+  <link rel="icon" type="image/x-icon" href="logo.png">
+	<style>
+		body {
+			font-family: 'Palatino Linotype', sans-serif;
+			font-size: 12px;
+			line-height: 1.5;
+			/* margin: 0;
+			padding: 0; */
+            display: grid;
+            align-items: center;
+            margin: 50px;
+		}
+        
+        div .justify-content-between {
+         display: flex;
+         justify-content: space-between;
+         margin-top: 4px;
+       }
+
+		table  {
+			border-collapse: collapse;
+			width: 100%;
+		}
+       .skib_border tr td{
+            border: none!important;
+
+        }
+		th, td {
+			padding: 10px;
+			text-align: left;
+			border-bottom: 1px solid #ddd;
+		}
+		th {
+			background-color: #f2f2f2;
+		}
+		.invoice-header {
+			/* background-color: #f2f2f2; */
+			padding: 20px;
+            
+		}
+		.invoice-header h1 {
+			margin: 0;
+			font-size: 24px;
+		}
+		.invoice-details {
+			margin-top: 10px;
+		}
+		.invoice-details p {
+			margin: 0;
+			font-weight: bold;
+		}
+		.invoice-details table {
+			margin-top: 5px;
+			border: 1px solid #ddd;
+			border-collapse: collapse;
+			width: 100%;
+		}
+		.invoice-details th, .invoice-details td {
+			padding: 10px;
+			/* text-align: left; */
+			border: 1px solid #ddd;
+		}
+		.invoice-footer {
+			margin-top: 20px;
+			text-align: center;
+		}
+		.invoice-footer p {
+			margin: 0;
+		}
+       .container{
+        border: 1px solid #000;
+       }
+       .innumber{
+        border: 1px solid #000;
+        padding: 8px;
+        font-size:  16px;
+       }
+       .fs-2{
+        font-size:  16px;
+        margin-top: 20px!important;
+       }
+       .invoice-details p{
+        margin: 15px 0 15px 0;
+       }
+       
+       .text-center {
+          text-align: center!important;
+          }
+      .text-end {
+            text-align: end!important;
+        }
+        .fw-bold{ 
+            font-weight: bold;
+        }
+        .pb-5{
+            padding-bottom: 60px!important;
+        }
+        .mb-4{
+            padding-bottom: 20px!important;
+        }
+        /* .my-5{
+            margin: 60px;
+        } */
+/* if you want to change the size of it */
+        #table{
+       max-width: 2480px;
+      width:100%;
+        }
+     #table td{
+     width: auto;
+     overflow: hidden;
+      word-wrap: break-word;
+    }
+	</style>
+</head>
+<body>
+	<div class="container  my-5">
+        <div class="invoice-header justify-content-between">
+            <div>
+                <h6 class="innumber mt-2">
+                    IN: 123456
+                </h6>
+            </div>
+            <div class="text-center">
+                <!-- logo -->
+                <div class="mb-2"><img src="placeholder-logo.png" width="120" alt="logo"></div>
+                <p>Hotline: +88 01 77 88 77 0 22 <br>
+                 Facebook: @sareesuri | www.sareesuri.com</p>
+                
+            </div>
+            <div>
+                <h1 class="fs-2">Invoice</h1>
+                <p><b>Date:</b> March 30, 2023 <br>
+                 <b>Due Date:</b> April 30, 2023
+                </p>
+          
+            </div>
+            
+        </div>
+        <div class="invoice-details">
+            <!-- Customer details -->
+                <table class="skib_border" id="table" style="border: 0;">
+                    <tr>
+                        <td><b>Customer Name</b></td>
+                        <td>:_______________________________________________________________________</td>
+                    </tr>
+                    <tr>
+                        <td><b>Contact No</b></td>
+                        <td>:_______________________________________________________________________</td>
+                    </tr>
+                    <tr>
+                        <td><b>Shipping Address</b></td>
+                        <td>:_______________________________________________________________________</td>
+                    </tr>
+                </table>
+                <!-- main table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="text-center">SL.NO</th>
+                        <th class="text-center">Description of Goods</th>
+                        <th class="text-center">HNS/SAC</th>
+                        <th class="text-center">Unit Cost</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-center">Disc.</th>
+                        <th class="text-center">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="text-end">
+                        <td class="text-center">1</td>
+                        <td>New Jamdani</td>
+                        <td class="text-center">300</td>
+                        <td class="text-end">৳45.00</td>
+                        <td class="text-center">2.00 </td>
+                        <td class="text-end">৳45.00</td>
+                        <td class="text-end fw-bold">৳90.00</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">2</td>
+                        <td>Halp Silk Jamdani</td>
+                        <td class="text-center">200</td>
+                        <td class="text-end">৳45.00</td>
+                        <td class="text-center">1.00 </td>
+                        <td class="text-end">৳45.00</td>
+                        <td class="text-end fw-bold">৳45.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-center" colspan="3">Total</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                        <td class="text-center fw-bold">65.00</td>
+                        <td class="text-end fw-bold">৳65.00</td>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end" colspan="6">Subtotal</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end fw-bold" colspan="6">Other Charges</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end fw-bold" colspan="6">Discount on All( %)</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end fw-bold" colspan="6">Grand Total</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end fw-bold" colspan="6">Invoice Paid</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end fw-bold" colspan="6">Invoice Due</th>
+                        <td class="text-end fw-bold">৳65.00</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end fw-bold" colspan="6">Tax (15%)</th>
+                        <td class="text-end fw-bold">৳6.50</td>
+                    </tr>
+                    <tr>
+                        <th class="text-end" colspan="6">Customer Total Due</th>
+                        <td class="text-end fw-bold">৳71.50</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7">Amount in words: <b><i>BDT Four Thousand Four Hundred and Sixty-Four</i></b></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7">Note:</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><b>Terms & Conditions:</b></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="pb-5"><b>Customer Signature</b></td>
+                     
+                        <td colspan="4" class="pb-5"><b>Authorised Signatory</b></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="invoice-footer fw-bold mb-4">
+            <p>Thank you for your business!</p>
+        </div>
+
+    </div>
+</body>
+</html>

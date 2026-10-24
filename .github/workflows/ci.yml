@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Pull requests and other branches cancel a superseded run.
+# Runs on main never cancel, so every commit on main gets a full result.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Test
+        run: npm test
+
+      - name: Build browser bundle
+        run: npm run build:browser
+
+      - name: Committed browser bundle and presets match the sources
+        run: git diff --exit-code -- public/veloxpdf.browser.js public/presets.json
+
+      - name: MCP server answers initialize and tools/list
+        run: |
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+          | node bin/veloxpdf-mcp.mjs 2>/dev/null > mcp-out.txt
+          test "$(wc -l < mcp-out.txt)" -eq 2
+          grep -q '"protocolVersion":"2025-06-18"' mcp-out.txt
+          for tool in render_pdf sign_pdf verify_pdf extract_pdf_data; do grep -q "\"name\":\"$tool\"" mcp-out.txt; done
+
+      - name: Package contents
+        run: npm pack --dry-run

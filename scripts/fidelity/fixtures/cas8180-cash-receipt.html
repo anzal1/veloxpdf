@@ -1,0 +1,130 @@
+<!-- Source: receipt.html from github.com/cas8180/cash-receipt-template. Copyright (c) 2026. MIT licence, see SOURCES.md. Sample data filled in; remote fonts removed; images point at a local placeholder. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cash Receipt</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .receipt {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 2rem;
+      border: 1px solid #ddd;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .value {
+      text-align: right;
+    }
+
+    .section {
+      margin-top: 1.5rem;
+    }
+
+    .box {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      min-height: 2.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .signature {
+      margin-top: 2.5rem;
+    }
+
+    .signature-line {
+      border-top: 1px solid #000;
+      margin-top: 2rem;
+      padding-top: 0.25rem;
+      font-size: 0.85rem;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #555;
+      text-align: center;
+    }
+
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+      .receipt {
+        border: none;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="receipt">
+    <h1>Cash Receipt</h1>
+
+    <div class="row">
+      <div class="label">Date:</div>
+      <div class="value">________________________</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Receipt #:</div>
+      <div class="value">________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="label">Received From:</div>
+      <div class="box"></div>
+    </div>
+
+    <div class="section">
+      <div class="label">Description of Work / Services:</div>
+      <div class="box"></div>
+    </div>
+
+    <div class="row section">
+      <div class="label">Payment Method:</div>
+      <div class="value">Cash</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Amount Paid:</div>
+      <div class="value">$__________________</div>
+    </div>
+
+    <div class="signature">
+      <div class="signature-line">Customer Signature</div>
+    </div>
+
+    <div class="footer">
+      This receipt documents payment received for services rendered.
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,2335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>VeloxPDF Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235e6ad2'/%3E%3Cpath d='M11 8h7l5 5v11H11z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem('velox-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Geist+Mono:wght@400..500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    color-scheme: light;
+    --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --fs-xs: 11px;  --ls-xs: 0.01em;
+    --fs-sm: 12px;  --ls-sm: 0;
+    --fs-md: 13px;  --ls-md: -0.003em;
+    --fs-lg: 15px;  --ls-lg: -0.011em;
+    --fs-xl: 20px;  --ls-xl: -0.02em;
+
+    --r-1: 4px; --r-2: 6px; --r-3: 8px; --r-4: 12px;
+    --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --control-h: 28px;
+    --bar-h: 44px;
+
+    /* Neutral scale (light) */
+    --n-0: #ffffff; --n-50: #fafafa; --n-100: #f4f4f5; --n-150: #eeeef0; --n-200: #e6e6e9;
+    --n-300: #d9d9de; --n-500: #8b8b93; --n-600: #63636b; --n-900: #1c1c1f;
+
+    --bg-app: var(--n-100);
+    --bg-panel: var(--n-0);
+    --bg-canvas: var(--n-100);
+    --bg-subtle: var(--n-50);
+    --bg-hover: var(--n-150);
+    --bg-pressed: var(--n-200);
+    --border: var(--n-200);
+    --border-strong: var(--n-300);
+    --text-1: var(--n-900);
+    --text-2: var(--n-600);
+    --text-3: var(--n-500);
+
+    --accent: #5e6ad2;
+    --accent-hover: #5260c9;
+    --accent-text: #4b57c2;
+    --accent-soft: rgb(94 106 210 / 0.10);
+    --on-accent: #ffffff;
+    --focus-ring: rgb(94 106 210 / 0.55);
+
+    --success: #187a4c;  --success-soft: rgb(24 122 76 / 0.09);
+    --danger: #c42f2b;   --danger-soft: rgb(196 47 43 / 0.08);
+    --warning: #9a5800;  --warning-soft: rgb(154 88 0 / 0.09);
+
+    --paper-shadow: 0 0 0 1px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.05), 0 6px 12px -4px rgb(0 0 0 / 0.07), 0 20px 40px -12px rgb(0 0 0 / 0.16);
+    --pop-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 12px 32px -8px rgb(0 0 0 / 0.18);
+
+    /* Syntax colours (light) */
+    --syn-tag: #4b57c2; --syn-attr: #8a4b00; --syn-string: #17734a; --syn-comment: #6e6e76;
+    --syn-tpl: #a3267f; --syn-tpl-bg: rgb(163 38 127 / 0.08); --syn-prop: #0b6a85; --syn-sel: #7038d6;
+    --syn-punct: #6e6e76; --syn-gutter: #8b8b93; --syn-select: rgb(94 106 210 / 0.22);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --n-0: #111113; --n-50: #18181b; --n-100: #0c0c0e; --n-150: #202024; --n-200: #26262b;
+      --n-300: #34343a; --n-500: #6d6d76; --n-600: #93939c; --n-900: #e4e4e7;
+      --bg-canvas: #17171a;
+      --accent-text: #9ea6f2;
+      --accent-soft: rgb(94 106 210 / 0.18);
+      --focus-ring: rgb(140 150 240 / 0.6);
+      --success: #4cc38a;  --success-soft: rgb(76 195 138 / 0.12);
+      --danger: #ff7a72;   --danger-soft: rgb(255 122 114 / 0.11);
+      --warning: #f0b14a;  --warning-soft: rgb(240 177 74 / 0.12);
+      --paper-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -12px rgb(0 0 0 / 0.6);
+      --pop-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 12px 32px -8px rgb(0 0 0 / 0.6);
+      --syn-tag: #a3abf5; --syn-attr: #e3b56c; --syn-string: #74d19e; --syn-comment: #8a8a93;
+      --syn-tpl: #f29ad6; --syn-tpl-bg: rgb(242 154 214 / 0.10); --syn-prop: #72cfe6; --syn-sel: #c4a7ff;
+      --syn-punct: #8a8a93; --syn-gutter: #5f5f68; --syn-select: rgb(140 150 240 / 0.30);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --n-0: #111113; --n-50: #18181b; --n-100: #0c0c0e; --n-150: #202024; --n-200: #26262b;
+    --n-300: #34343a; --n-500: #6d6d76; --n-600: #93939c; --n-900: #e4e4e7;
+    --bg-canvas: #17171a;
+    --accent-text: #9ea6f2;
+    --accent-soft: rgb(94 106 210 / 0.18);
+    --focus-ring: rgb(140 150 240 / 0.6);
+    --success: #4cc38a;  --success-soft: rgb(76 195 138 / 0.12);
+    --danger: #ff7a72;   --danger-soft: rgb(255 122 114 / 0.11);
+    --warning: #f0b14a;  --warning-soft: rgb(240 177 74 / 0.12);
+    --paper-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 4px rgb(0 0 0 / 0.35), 0 24px 48px -12px rgb(0 0 0 / 0.6);
+    --pop-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 12px 32px -8px rgb(0 0 0 / 0.6);
+    --syn-tag: #a3abf5; --syn-attr: #e3b56c; --syn-string: #74d19e; --syn-comment: #8a8a93;
+    --syn-tpl: #f29ad6; --syn-tpl-bg: rgb(242 154 214 / 0.10); --syn-prop: #72cfe6; --syn-sel: #c4a7ff;
+    --syn-punct: #8a8a93; --syn-gutter: #5f5f68; --syn-select: rgb(140 150 240 / 0.30);
+  }
+  @media (pointer: coarse) {
+    :root { --control-h: 44px; --bar-h: 52px; }
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg-app);
+    color: var(--text-1);
+    font: 400 var(--fs-md)/1.5 var(--font-sans);
+    letter-spacing: var(--ls-md);
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+  button { cursor: pointer; }
+  h2, h3, p { margin: 0; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  .app {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    height: 100vh;
+    height: 100dvh;
+  }
+  .topbar { grid-row: 1; }
+  .view-switch { grid-row: 2; }
+  .workspace { grid-row: 3; }
+  .statusbar { grid-row: 4; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: var(--control-h); min-width: 24px; padding: 0 10px;
+    border: 1px solid var(--border-strong); border-radius: var(--r-2);
+    background: var(--bg-panel); color: var(--text-1);
+    font-size: var(--fs-sm); font-weight: 500; line-height: 1; white-space: nowrap;
+    text-decoration: none; user-select: none;
+    transition: transform 120ms var(--ease-out), background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+  .btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(0.97); }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); border-color: transparent; color: var(--on-accent); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(0 0 0 / 0.12); }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--text-2); }
+  .btn-danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: var(--danger-soft); }
+  .btn-icon { width: var(--control-h); padding: 0; }
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover:not(:disabled) { background: var(--bg-hover); }
+    .btn-primary:hover:not([aria-disabled="true"]) { background: var(--accent-hover); }
+    .btn-ghost:hover:not(:disabled) { color: var(--text-1); background: var(--bg-hover); }
+    .btn-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+  }
+
+  /* Segmented control (one structure for every tab group) */
+  .seg {
+    display: inline-flex; padding: 2px; gap: 2px;
+    background: var(--bg-hover); border-radius: var(--r-3);
+  }
+  .seg button {
+    height: calc(var(--control-h) - 4px); padding: 0 10px;
+    border: 0; border-radius: var(--r-2); background: transparent;
+    color: var(--text-2); font-size: var(--fs-sm); font-weight: 500; white-space: nowrap;
+    transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+  }
+  .seg button[aria-selected="true"] { background: var(--bg-panel); color: var(--text-1); box-shadow: 0 0 0 1px var(--border), 0 1px 2px rgb(0 0 0 / 0.06); }
+  @media (hover: hover) and (pointer: fine) {
+    .seg button:hover:not([aria-selected="true"]) { color: var(--text-1); }
+  }
+  .seg.full { display: flex; }
+  .seg.full button { flex: 1 1 0; }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    display: flex; align-items: center; gap: var(--s-3);
+    height: var(--bar-h); padding: 0 var(--s-4);
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+    min-width: 0;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; flex: none; color: var(--text-1); text-decoration: none; border-radius: var(--r-2); }
+  .brand-mark {
+    width: 24px; height: 24px; border-radius: 7px; background: var(--accent); color: #fff;
+    display: inline-grid; place-items: center; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+  }
+  .brand-mark svg { width: 14px; height: 14px; stroke-width: 2; }
+  .brand-name { font-size: var(--fs-lg); letter-spacing: var(--ls-lg); font-weight: 600; }
+  .brand-name span { color: var(--text-2); font-weight: 500; }
+  .topbar .divider { width: 1px; height: 20px; background: var(--border); flex: none; }
+  .select-wrap { position: relative; min-width: 0; flex: 0 1 280px; }
+  .select-wrap select {
+    appearance: none; -webkit-appearance: none; width: 100%;
+    height: var(--control-h); padding: 0 30px 0 10px;
+    border: 1px solid var(--border-strong); border-radius: var(--r-2);
+    background: var(--bg-panel); color: var(--text-1);
+    font-size: var(--fs-sm); font-weight: 500; text-overflow: ellipsis; cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+  .select-wrap svg { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-2); width: 14px; height: 14px; }
+  @media (hover: hover) and (pointer: fine) { .select-wrap select:hover { background: var(--bg-hover); } }
+  .topbar .spacer { flex: 1 1 auto; min-width: 0; }
+  .topbar-actions { display: flex; align-items: center; gap: var(--s-2); flex: none; }
+
+  /* Mobile view switch */
+  .view-switch { display: none; padding: var(--s-2) var(--s-4); background: var(--bg-panel); border-bottom: 1px solid var(--border); }
+
+  /* ---------- Workspace ---------- */
+  .workspace {
+    --col-template: clamp(320px, 27vw, 460px);
+    --col-inspector: 320px;
+    display: grid;
+    grid-template-columns: var(--col-template) minmax(0, 1fr) var(--col-inspector);
+    min-height: 0; min-width: 0;
+    transition: grid-template-columns 200ms var(--ease-drawer);
+  }
+  .workspace[data-inspector="open"] { transition-duration: 260ms; }
+  .workspace[data-inspector="closed"] { --col-inspector: 0px; }
+
+  .pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg-panel); }
+  .pane-head {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--s-2);
+    height: var(--bar-h); padding: 0 var(--s-3); flex: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Template pane */
+  .pane-template { border-right: 1px solid var(--border); }
+  .tpl-panel { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+  .tpl-panel[hidden] { display: none; }
+  .code {
+    flex: 1 1 auto; width: 100%; min-height: 0; margin: 0;
+    padding: var(--s-3) var(--s-4); border: 0; outline: none; resize: none;
+    background: var(--bg-panel); color: var(--text-1);
+    font: 400 var(--fs-sm)/1.6 var(--font-mono); letter-spacing: 0; tab-size: 2;
+  }
+  .code:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+  /* Code editor: transparent textarea over a highlighted pre */
+  .editor { --gut: 44px; --pad-y: 12px; --pad-r: 16px; position: relative; flex: 1 1 auto; min-height: 0; overflow: auto; background: var(--bg-panel); scrollbar-gutter: stable; }
+  .editor-layer {
+    position: relative; min-height: 100%; min-width: 100%;
+    background: linear-gradient(to right, var(--bg-subtle) calc(var(--gut) - 12px), var(--border) calc(var(--gut) - 12px), var(--border) calc(var(--gut) - 11px), transparent calc(var(--gut) - 11px));
+  }
+  .editor[data-wrap="off"] .editor-layer { width: max-content; }
+  .editor-hl, .editor-input {
+    margin: 0; border: 0; padding: var(--pad-y) var(--pad-r) var(--pad-y) var(--gut);
+    font: 400 var(--fs-sm)/1.65 var(--font-mono); letter-spacing: 0; tab-size: 2;
+    font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0;
+    white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal;
+  }
+  .editor[data-wrap="off"] .editor-hl, .editor[data-wrap="off"] .editor-input { white-space: pre; overflow-wrap: normal; }
+  .editor-hl { color: var(--text-1); pointer-events: none; min-height: 100%; }
+  .editor-input {
+    position: absolute; inset: 0; width: 100%; height: 100%; resize: none; overflow: hidden;
+    background: transparent; color: transparent; caret-color: var(--text-1); outline: none;
+    -webkit-text-fill-color: transparent;
+  }
+  .editor-input::selection { background: var(--syn-select); color: transparent; -webkit-text-fill-color: transparent; }
+  .editor:focus-within .editor-layer { background: linear-gradient(to right, var(--bg-subtle) calc(var(--gut) - 12px), var(--accent) calc(var(--gut) - 12px), var(--accent) calc(var(--gut) - 11px), transparent calc(var(--gut) - 11px)); }
+  .editor-hl .ln-row { display: block; position: relative; }
+  .editor-hl .ln { position: absolute; left: calc(-1 * var(--gut)); width: calc(var(--gut) - 20px); text-align: right; color: var(--syn-gutter); user-select: none; font-variant-numeric: tabular-nums; }
+  .t-tag { color: var(--syn-tag); }
+  .t-attr { color: var(--syn-attr); }
+  .t-str { color: var(--syn-string); }
+  .t-com { color: var(--syn-comment); }
+  .t-tpl { color: var(--syn-tpl); background: var(--syn-tpl-bg); border-radius: 3px; }
+  .t-prop { color: var(--syn-prop); }
+  .t-sel { color: var(--syn-sel); }
+  .t-pun { color: var(--syn-punct); }
+  .btn[aria-pressed="true"] { color: var(--text-1); background: var(--bg-hover); }
+  .pane-note {
+    display: flex; align-items: center; gap: var(--s-2); flex: none;
+    padding: var(--s-2) var(--s-4); border-top: 1px solid var(--border);
+    color: var(--text-2); font-size: var(--fs-xs); letter-spacing: var(--ls-xs);
+  }
+  .pane-note svg { width: 14px; height: 14px; }
+
+  /* Visual form */
+  .form-pane { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-5); }
+  .form-section { display: flex; flex-direction: column; gap: var(--s-3); }
+  .form-section-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: var(--control-h); }
+  .sec-title { font-size: var(--fs-md); font-weight: 600; letter-spacing: var(--ls-md); color: var(--text-1); }
+  .sec-meta { color: var(--text-2); font-size: var(--fs-sm); font-weight: 400; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--s-3); }
+  .field { display: flex; flex-direction: column; gap: var(--s-1); min-width: 0; }
+  .field label { font-size: var(--fs-xs); letter-spacing: var(--ls-xs); color: var(--text-2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .input {
+    width: 100%; height: var(--control-h); padding: 0 var(--s-2);
+    border: 1px solid var(--border-strong); border-radius: var(--r-2);
+    background: var(--bg-panel); color: var(--text-1); font-size: var(--fs-sm);
+    outline: none; transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .logo-row { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--r-3); }
+  .data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  .data-table th { text-align: left; font-weight: 500; font-size: var(--fs-xs); letter-spacing: var(--ls-xs); color: var(--text-2); padding: 6px 8px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .data-table td { padding: 2px 4px; border-bottom: 1px solid var(--border); }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table .input { border-color: transparent; background: transparent; height: 28px; min-width: 72px; }
+  .data-table .input:focus { border-color: var(--accent); background: var(--bg-panel); }
+  @media (hover: hover) and (pointer: fine) { .data-table .input:hover:not(:focus) { background: var(--bg-hover); } }
+  .data-table td.act { width: 32px; text-align: center; }
+  .data-table .btn-icon { width: 24px; height: 24px; color: var(--text-2); }
+
+  /* Preview pane */
+  .pane-preview { background: var(--bg-canvas); }
+  .pane-preview .pane-head { background: var(--bg-canvas); }
+  .tool-group { display: flex; align-items: center; gap: 2px; }
+  .tool-label { min-width: 72px; text-align: center; color: var(--text-2); font-size: var(--fs-sm); }
+  .tool-label b { color: var(--text-1); font-weight: 500; }
+  .zoom-label { min-width: 44px; text-align: center; color: var(--text-2); font-size: var(--fs-sm); }
+  .tool-sep { width: 1px; height: 16px; background: var(--border-strong); margin: 0 6px; }
+  .viewer:focus-visible { outline-offset: -2px; }
+  .viewer {
+    flex: 1 1 auto; min-height: 0; overflow: auto; position: relative;
+    padding: var(--s-6); scrollbar-gutter: stable;
+  }
+  .paper-wrap { width: max-content; margin: 0 auto; }
+  #pdf-canvas { display: block; background: #fff; border-radius: 2px; box-shadow: var(--paper-shadow); }
+  #pdf-fallback { width: 100%; height: 100%; border: 0; display: none; background: var(--bg-canvas); }
+
+  /* Inspector */
+  .inspector { border-left: 1px solid var(--border); overflow: hidden; }
+  .inspector-inner {
+    width: 320px; height: 100%; display: flex; flex-direction: column; min-height: 0;
+    transition: transform 260ms var(--ease-drawer), opacity 200ms ease, visibility 0s linear 0s;
+  }
+  .workspace[data-inspector="closed"] .inspector-inner {
+    transform: translateX(24px); opacity: 0; visibility: hidden;
+    transition: transform 200ms var(--ease-drawer), opacity 150ms ease, visibility 0s linear 200ms;
+  }
+  .workspace[data-inspector="closed"] .inspector { border-left-color: transparent; }
+  .inspector-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--s-4); }
+  .insp-section { display: flex; flex-direction: column; gap: var(--s-5); }
+  .insp-section[hidden] { display: none; }
+  .block { display: flex; flex-direction: column; gap: var(--s-2); }
+  .block p { color: var(--text-2); font-size: var(--fs-sm); line-height: 1.5; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+
+  .switch { display: inline-flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-1); cursor: pointer; min-height: var(--control-h); }
+  .switch input {
+    appearance: none; -webkit-appearance: none; margin: 0; flex: none;
+    width: 30px; height: 18px; border-radius: 999px; background: var(--border-strong);
+    position: relative; cursor: pointer; transition: background-color 160ms ease;
+  }
+  .switch input::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.25); transition: transform 160ms var(--ease-out);
+  }
+  .switch input:checked { background: var(--accent); }
+  .switch input:checked::after { transform: translateX(12px); }
+
+  .status-card {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: var(--s-3);
+    padding: var(--s-3); border-radius: var(--r-3); border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    transition: background-color 160ms ease, border-color 160ms ease;
+  }
+  .status-card .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--text-3); }
+  .status-card.is-valid { background: var(--success-soft); border-color: color-mix(in srgb, var(--success) 25%, transparent); }
+  .status-card.is-valid .dot { background: var(--success); }
+  .status-card.is-rejected { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+  .status-card.is-rejected .dot { background: var(--danger); }
+  .status-title { font-weight: 600; font-size: var(--fs-md); }
+  .status-card.is-valid .status-title { color: var(--success); }
+  .status-card.is-rejected .status-title { color: var(--danger); }
+  .status-sub { color: var(--text-2); font-size: var(--fs-sm); margin-top: 2px; }
+  .status-ms { color: var(--text-2); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 2px; }
+
+  .spec { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--s-2) var(--s-3); margin: 0; font-size: var(--fs-sm); }
+  .spec dt { color: var(--text-2); }
+  .spec dd { margin: 0; color: var(--text-1); font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0; line-height: 1.6; overflow-wrap: anywhere; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto auto; gap: var(--s-2); }
+  .stat { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 2px; padding: var(--s-3) 10px; border: 1px solid var(--border); border-radius: var(--r-3); background: var(--bg-subtle); min-width: 0; }
+  .stat-label { font-size: var(--fs-xs); letter-spacing: var(--ls-xs); color: var(--text-2); }
+  .stat-value { font-size: var(--fs-lg); letter-spacing: var(--ls-lg); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-meta { font-size: var(--fs-xs); letter-spacing: var(--ls-xs); color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  .flip { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-3); }
+  .flip-cust { font-weight: 600; font-size: var(--fs-md); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .flip-inv { color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+  .range { width: 100%; accent-color: var(--accent); margin: var(--s-1) 0; height: 24px; cursor: pointer; }
+  .flip-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+  .flip-meta { color: var(--text-2); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+  .dropzone {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%;
+    padding: var(--s-5) var(--s-4); border: 1px dashed var(--border-strong); border-radius: var(--r-3);
+    background: var(--bg-subtle); color: var(--text-2); font-size: var(--fs-sm); text-align: center;
+    transition: border-color 120ms ease, background-color 120ms ease, transform 120ms var(--ease-out);
+  }
+  .dropzone b { color: var(--text-1); font-weight: 500; font-size: var(--fs-md); }
+  .dropzone svg { width: 20px; height: 20px; color: var(--text-2); }
+  .dropzone:active { transform: scale(0.99); }
+  @media (hover: hover) and (pointer: fine) { .dropzone:hover { border-color: var(--accent); background: var(--accent-soft); } }
+  .verify-result { display: grid; grid-template-columns: auto 1fr; gap: var(--s-2) var(--s-3); align-items: center; padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-3); font-size: var(--fs-sm); }
+  .verify-result[hidden] { display: none; }
+  .verify-file { font-weight: 500; overflow-wrap: anywhere; }
+  .verify-sub { color: var(--text-2); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: var(--fs-xs); font-weight: 500; white-space: nowrap; }
+  .pill.ok { background: var(--success-soft); color: var(--success); }
+  .pill.bad { background: var(--danger-soft); color: var(--danger); }
+  .pill.neutral { background: var(--bg-hover); color: var(--text-2); }
+  .json-view {
+    margin: 0; max-height: 280px; overflow: auto; padding: var(--s-3);
+    border: 1px solid var(--border); border-radius: var(--r-3); background: var(--bg-subtle);
+    font: 400 var(--fs-xs)/1.6 var(--font-mono); letter-spacing: 0; color: var(--text-1); white-space: pre;
+  }
+  .inline-msg { color: var(--danger); font-size: var(--fs-sm); }
+  .inline-msg:empty { display: none; }
+
+  /* ---------- Status bar ---------- */
+  .statusbar {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+    height: 28px; padding: 0 var(--s-2) 0 var(--s-4);
+    background: var(--bg-panel); border-top: 1px solid var(--border);
+    color: var(--text-2); font-size: var(--fs-xs); letter-spacing: var(--ls-xs);
+    font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0;
+  }
+  .status-left, .status-right { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .status-left { overflow: hidden; flex: 1 1 auto; padding-right: 6px; }
+  .status-left .sep { color: var(--text-3); }
+  .status-left b { color: var(--text-1); font-weight: 500; }
+  .sig-link {
+    display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 0 6px; margin: 0 -6px;
+    border: 0; background: transparent; border-radius: var(--r-1); color: var(--text-1); font-size: inherit;
+  }
+  .sig-link .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
+  .sig-link.is-signed .dot { background: var(--success); }
+  .sig-link.is-broken { color: var(--danger); }
+  .sig-link.is-broken .dot { background: var(--danger); }
+  @media (hover: hover) and (pointer: fine) { .sig-link:hover { background: var(--bg-hover); } }
+  .statusbar .btn-icon { width: 24px; height: 24px; }
+  .statusbar .btn-icon svg { width: 14px; height: 14px; }
+
+  /* ---------- Drop overlay ---------- */
+  .drag-overlay {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: var(--s-4);
+    background: color-mix(in srgb, var(--bg-app) 82%, transparent);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 120ms ease, visibility 0s linear 120ms;
+  }
+  .drag-overlay.active { opacity: 1; visibility: visible; transition: opacity 150ms ease, visibility 0s; }
+  .drag-card {
+    display: flex; flex-direction: column; align-items: center; gap: var(--s-2); text-align: center;
+    max-width: 420px; padding: var(--s-6); border-radius: var(--r-4);
+    background: var(--bg-panel); border: 1px dashed var(--accent); box-shadow: var(--pop-shadow);
+    transform: scale(0.97); transition: transform 150ms var(--ease-out);
+  }
+  .drag-overlay.active .drag-card { transform: scale(1); }
+  .drag-card b { font-size: var(--fs-lg); letter-spacing: var(--ls-lg); font-weight: 600; }
+  .drag-card span { color: var(--text-2); font-size: var(--fs-sm); }
+  .drag-card svg { width: 28px; height: 28px; color: var(--accent-text); }
+
+  .mobile-only { display: none; }
+
+  /* Mode switching: template presets vs e-invoices */
+  body:not([data-mode="einvoice"]) .einv-only { display: none !important; }
+  body[data-mode="einvoice"] .tpl-only { display: none !important; }
+  .select-wrap.select-sm { flex: 0 0 auto; width: 128px; }
+  .err-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--s-2); }
+  .err-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-1); }
+  .err-list code { font: 400 var(--fs-xs)/1.6 var(--font-mono); color: var(--text-2); letter-spacing: 0; }
+  .xml-box { border: 1px solid var(--border); border-radius: var(--r-3); overflow: hidden; }
+  .xml-box summary { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: 36px; padding: 0 var(--s-3); cursor: pointer; list-style: none; font-size: var(--fs-sm); font-weight: 500; }
+  .xml-box summary::-webkit-details-marker { display: none; }
+  .xml-box summary svg { transition: transform 160ms var(--ease-out); color: var(--text-2); }
+  .xml-box[open] summary svg { transform: rotate(180deg); }
+  .xml-box .json-view { border: 0; border-top: 1px solid var(--border); border-radius: 0; max-height: 320px; }
+  .spec dd.amount { font-variant-numeric: tabular-nums; }
+  .spec dd.amount.strong { color: var(--text-1); font-weight: 500; }
+  .loading-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 900ms ease-in-out infinite alternate; }
+  @keyframes pulse { from { opacity: 0.35; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .loading-dot { animation: none; } .xml-box summary svg { transition: none; } }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1279px) and (min-width: 900px) {
+    .workspace { --col-template: 320px; --col-inspector: 300px; }
+    .inspector-inner { width: 300px; }
+  }
+  @media (max-width: 899px) {
+    .view-switch { display: block; }
+    .workspace, .workspace[data-inspector] { grid-template-columns: minmax(0, 1fr); transition: none; }
+    .pane { display: none; border: 0; }
+    .workspace[data-view="template"] .pane-template,
+    .workspace[data-view="preview"] .pane-preview,
+    .workspace[data-view="inspector"] .inspector { display: flex; }
+    .workspace .inspector-inner, .workspace[data-inspector="closed"] .inspector-inner { width: 100%; transform: none; opacity: 1; visibility: visible; transition: none; }
+    .inspector { flex-direction: column; }
+    .inspector .pane-head .close-insp, #btn-toggle-inspector, #btn-toggle-inspector + .tool-sep { display: none; }
+    .viewer { padding: var(--s-4); }
+    .mobile-only { display: inline-flex; }
+    .brand-name { display: none; }
+    .topbar .divider { display: none; }
+    .select-wrap { flex: 1 1 auto; }
+    .hide-narrow { display: none; }
+  }
+  @media (max-width: 480px) {
+    .pane-preview .pane-head { padding: 0 var(--s-2); }
+    .tool-label { min-width: 56px; }
+    .hide-xs { display: none !important; }
+    .topbar { gap: var(--s-2); }
+  }
+
+  /* ---------- Motion and material preferences ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .workspace, .workspace[data-inspector="open"] { transition: none; }
+    .inspector-inner, .workspace[data-inspector="closed"] .inspector-inner { transform: none !important; transition: opacity 150ms ease, visibility 0s linear 150ms; }
+    .drag-card { transform: none; transition: none; }
+    .btn:active:not(:disabled), .dropzone:active { transform: none; }
+    .switch input::after { transition: none; }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .drag-overlay { background: var(--bg-app); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4m0 0L8 8m4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5m0 0L7.5 9.5M12 5l4.5 4.5M5 20h14"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-wrap" viewBox="0 0 24 24"><path d="M4 6h16M4 12h12a3 3 0 0 1 0 6h-4m0 0 2-2m-2 2 2 2M4 18h4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+</svg>
+
+<div class="app">
+  <!-- Header -->
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="VeloxPDF Studio home">
+      <span class="brand-mark" aria-hidden="true"><svg class="i"><use href="#i-doc"/></svg></span>
+      <span class="brand-name">VeloxPDF <span>Studio</span></span>
+    </a>
+    <span class="divider" aria-hidden="true"></span>
+    <div class="select-wrap">
+      <select id="preset-picker" aria-label="Template preset" onchange="switchPreset(this.value)">
+        <optgroup label="Templates">
+        <option value="invoice">Tax invoice</option>
+        <option value="ledger">Audit ledger, several pages</option>
+        <option value="boarding">Boarding pass and shipping label</option>
+        <option value="certificate">Compliance certificate</option>
+        <option value="telemetry">Usage and uptime report</option>
+        <option value="complex">Stress test: rowspan, watermark, canvas, barcode</option>
+        </optgroup>
+        <optgroup label="E-invoices (Factur-X, ZUGFeRD, XRechnung)">
+          <option value="einv:germanB2B">E-invoice: German B2B</option>
+          <option value="einv:frenchBasic">E-invoice: French</option>
+          <option value="einv:xrechnung">E-invoice: XRechnung</option>
+          <option value="einv:creditNote">E-invoice: credit note</option>
+          <option value="einv:reverseCharge">E-invoice: reverse charge</option>
+          <option value="einv:minimum">E-invoice: minimum</option>
+        </optgroup>
+      </select>
+      <svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+    </div>
+    <div class="spacer"></div>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-ghost" onclick="shareOrOpenPdf()" title="Share or open the PDF">
+        <svg class="i" aria-hidden="true"><use href="#i-share"/></svg><span class="hide-xs">Share</span>
+      </button>
+      <button type="button" id="btn-xml-head" class="btn btn-ghost einv-only hide-xs" onclick="downloadEInvoiceXml()" title="Download the embedded XML">
+        <svg class="i" aria-hidden="true"><use href="#i-doc"/></svg><span>XML</span>
+      </button>
+      <a id="dl-link" class="btn btn-primary" download="velox-document.pdf" aria-disabled="true">
+        <svg class="i" aria-hidden="true"><use href="#i-down"/></svg><span>Download<span class="hide-narrow"> PDF</span></span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Mobile view switch -->
+  <div class="view-switch">
+    <div class="seg full" role="tablist" aria-label="View">
+      <button type="button" role="tab" id="view-btn-template" aria-controls="pane-template" aria-selected="false" onclick="setView('template')">Template</button>
+      <button type="button" role="tab" id="view-btn-preview" aria-controls="pane-preview" aria-selected="true" onclick="setView('preview')">Preview</button>
+      <button type="button" role="tab" id="view-btn-inspector" aria-controls="inspector" aria-selected="false" onclick="setView('inspector')">Inspector</button>
+    </div>
+  </div>
+
+  <!-- Workspace -->
+  <main class="workspace" id="workspace" data-view="preview" data-inspector="open">
+    <!-- Left: template -->
+    <section class="pane pane-template" id="pane-template" aria-label="Template">
+      <div class="pane-head">
+        <div class="seg" role="tablist" aria-label="Template editor">
+          <button type="button" role="tab" id="tab-html" aria-controls="tpl-html" aria-selected="true" onclick="setTemplateTab('html')">HTML</button>
+          <button type="button" role="tab" id="tab-data" aria-controls="tpl-data" aria-selected="false" onclick="setTemplateTab('data')">Data</button>
+        </div>
+        <button type="button" id="btn-wrap" class="btn btn-ghost tpl-only" aria-pressed="true" onclick="toggleWrap()" title="Wrap long lines">
+          <svg class="i" aria-hidden="true"><use href="#i-wrap"/></svg><span>Wrap</span>
+        </button>
+        <div class="select-wrap select-sm einv-only">
+          <select id="einv-profile" aria-label="E-invoice profile" onchange="onProfileChange(this.value)">
+            <option value="MINIMUM">MINIMUM</option>
+            <option value="BASICWL">BASIC WL</option>
+            <option value="BASIC">BASIC</option>
+            <option value="EN16931">EN 16931</option>
+            <option value="XRECHNUNG">XRechnung</option>
+          </select>
+          <svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+        </div>
+        <div class="seg" role="tablist" aria-label="Data editor" id="data-mode-toggle" hidden>
+          <button type="button" role="tab" id="btn-mode-form" aria-controls="visual-form-container" aria-selected="true" onclick="setDataMode('form')">Form</button>
+          <button type="button" role="tab" id="btn-mode-json" aria-controls="json-ed" aria-selected="false" onclick="setDataMode('json')">JSON</button>
+        </div>
+      </div>
+      <div class="tpl-panel" id="tpl-html" role="tabpanel" aria-labelledby="tab-html">
+        <div class="editor" id="html-editor" data-wrap="on">
+          <div class="editor-layer">
+            <pre class="editor-hl" aria-hidden="true"><code id="html-hl"></code></pre>
+            <textarea id="html-ed" class="editor-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="HTML template"></textarea>
+          </div>
+        </div>
+        <div class="pane-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><span id="html-note">Scripts in a template run as written. Use trusted templates only.</span></div>
+      </div>
+      <div class="tpl-panel" id="tpl-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+        <div id="visual-form-container" class="form-pane" role="tabpanel" aria-labelledby="btn-mode-form"></div>
+        <textarea id="json-ed" class="code" wrap="off" spellcheck="false" aria-label="Template data as JSON" style="display:none;"></textarea>
+      </div>
+    </section>
+
+    <!-- Centre: preview -->
+    <section class="pane pane-preview" id="pane-preview" aria-label="Preview">
+      <div class="pane-head">
+        <div class="tool-group">
+          <button id="btn-prev" type="button" class="btn btn-ghost btn-icon" onclick="changePage(-1)" aria-label="Previous page"><svg class="i"><use href="#i-left"/></svg></button>
+          <span class="tool-label num" aria-live="polite"><span class="hide-xs">Page </span><b id="cur-page-num">1</b> of <span id="total-page-num">1</span></span>
+          <button id="btn-next" type="button" class="btn btn-ghost btn-icon" onclick="changePage(1)" aria-label="Next page"><svg class="i"><use href="#i-right"/></svg></button>
+        </div>
+        <div class="tool-group">
+          <button type="button" class="btn btn-ghost btn-icon" onclick="adjustZoom(-0.15)" aria-label="Zoom out"><svg class="i"><use href="#i-minus"/></svg></button>
+          <span id="zoom-lbl" class="zoom-label num">100%</span>
+          <button type="button" class="btn btn-ghost btn-icon" onclick="adjustZoom(0.15)" aria-label="Zoom in"><svg class="i"><use href="#i-plus"/></svg></button>
+          <button type="button" class="btn btn-ghost" onclick="resetZoom()">Fit</button>
+          <span class="tool-sep" aria-hidden="true"></span>
+          <button id="btn-toggle-inspector" type="button" class="btn btn-ghost btn-icon" onclick="toggleInspector()" aria-controls="inspector" aria-expanded="true" aria-label="Show or hide the inspector" title="Inspector"><svg class="i"><use href="#i-panel"/></svg></button>
+        </div>
+      </div>
+      <div class="viewer" id="viewer-box" role="region" aria-label="PDF page" tabindex="0">
+        <div class="paper-wrap"><canvas id="pdf-canvas" role="img" aria-label="Preview of the current PDF page" width="0" height="0"></canvas></div>
+        <iframe id="pdf-fallback" title="PDF preview"></iframe>
+      </div>
+    </section>
+
+    <!-- Right: inspector -->
+    <aside class="pane inspector" id="inspector" aria-label="Inspector">
+      <div class="inspector-inner">
+        <div class="pane-head">
+          <div class="seg" role="tablist" aria-label="Inspector sections">
+            <button type="button" role="tab" id="itab-signature" aria-controls="sec-signature" aria-selected="true" onclick="setInspectorTab('signature')">Signature</button>
+            <button type="button" role="tab" id="itab-einvoice" class="einv-only" aria-controls="sec-einvoice" aria-selected="false" onclick="setInspectorTab('einvoice')">E-invoice</button>
+            <button type="button" role="tab" id="itab-batch" class="tpl-only" aria-controls="sec-batch" aria-selected="false" onclick="setInspectorTab('batch')">Batch</button>
+            <button type="button" role="tab" id="itab-verify" aria-controls="sec-verify" aria-selected="false" onclick="setInspectorTab('verify')">Verify</button>
+          </div>
+          <button type="button" class="btn btn-ghost btn-icon close-insp" onclick="toggleInspector(false)" aria-label="Hide inspector"><svg class="i"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="inspector-body">
+          <!-- Signature -->
+          <section class="insp-section" id="sec-signature" role="tabpanel" aria-labelledby="itab-signature">
+            <div class="block">
+              <div class="row">
+                <h2 class="sec-title">Signature</h2>
+                <label class="switch"><input id="chk-sign" type="checkbox" role="switch" checked onchange="compileNow()"><span>Sign PDF</span></label>
+              </div>
+              <div id="tamper-status-card" class="status-card" aria-live="polite">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <div id="tamper-status-title" class="status-title">Waiting for the first render</div>
+                  <div id="tamper-status-sub" class="status-sub">The signature shows here once the PDF is ready.</div>
+                </div>
+                <span id="tamper-ms-pill" class="status-ms"></span>
+              </div>
+            </div>
+
+            <div class="block">
+              <h3 class="sec-title">Tamper test</h3>
+              <p>Change one byte of the signed file, then check it again. Any change to the signed bytes breaks the signature.</p>
+              <div class="btn-row">
+                <button id="btn-tamper" type="button" class="btn btn-danger" onclick="runTamperTest(true)">Change 1 byte</button>
+                <button id="btn-restore" type="button" class="btn" onclick="runTamperTest(false)">Restore original</button>
+              </div>
+            </div>
+
+            <div class="block">
+              <h3 class="sec-title">Details</h3>
+              <dl class="spec">
+                <dt>Signer</dt><dd id="insp-signer">VeloxPDF Treasury Authority</dd>
+                <dt>Standard</dt><dd>ISO 32000-1, adbe.pkcs7.detached</dd>
+                <dt>Digest</dt><dd id="insp-digest">Not computed yet</dd>
+                <dt>ByteRange</dt><dd id="insp-byterange">Not computed yet</dd>
+                <dt>Signed at</dt><dd id="insp-time">Not signed yet</dd>
+                <dt>Reason</dt><dd id="insp-reason">Document attestation</dd>
+                <dt>Embedded</dt><dd>velox-payload.json, inside the signed bytes</dd>
+              </dl>
+            </div>
+          </section>
+
+          <!-- Batch -->
+          <section class="insp-section" id="sec-batch" role="tabpanel" aria-labelledby="itab-batch" hidden>
+            <div class="block">
+              <h2 class="sec-title">Batch</h2>
+              <p>Fill this template with 100 sample customers and render every PDF.</p>
+              <div class="btn-row"><button id="btn-run-batch" type="button" class="btn" onclick="runBatchMailMerge()">Render 100 PDFs</button></div>
+            </div>
+
+            <div class="stats">
+              <div class="stat"><span class="stat-label">Total</span><span class="stat-value" id="batch-ms-stat">Not run</span><span class="stat-meta" id="batch-per-doc">per PDF</span></div>
+              <div class="stat"><span class="stat-label">Throughput</span><span class="stat-value" id="batch-thru-stat">Not run</span><span class="stat-meta">PDFs a second</span></div>
+              <div class="stat"><span class="stat-label">Documents</span><span class="stat-value">100</span><span class="stat-meta">from one template</span></div>
+            </div>
+
+            <div class="flip">
+              <div class="row">
+                <h3 class="sec-title">Flip through</h3>
+                <span class="sec-meta num" id="batch-counter">1 of 100</span>
+              </div>
+              <div id="batch-slider-label">
+                <div class="flip-cust" id="batch-cust">Not run yet</div>
+                <div class="flip-inv" id="batch-inv">Run the batch to fill this in</div>
+              </div>
+              <input type="range" id="batch-slider" class="range" min="1" max="100" value="1" aria-label="Document in the batch" oninput="onBatchSliderChange(this.value)">
+              <div class="flip-foot">
+                <div class="tool-group">
+                  <button type="button" class="btn btn-icon" onclick="stepBatchSlider(-1)" aria-label="Previous document"><svg class="i"><use href="#i-left"/></svg></button>
+                  <button type="button" class="btn btn-icon" onclick="stepBatchSlider(1)" aria-label="Next document"><svg class="i"><use href="#i-right"/></svg></button>
+                </div>
+                <span id="batch-item-meta" class="flip-meta"></span>
+              </div>
+              <div class="btn-row">
+                <a id="btn-batch-dl-single" class="btn" download="invoice-batch-sample.pdf">Download this PDF</a>
+                <button id="btn-batch-csv" type="button" class="btn" onclick="exportBatchCsv()">Export CSV</button>
+                <button type="button" class="btn mobile-only" onclick="setView('preview')">Show in preview</button>
+              </div>
+            </div>
+
+            <div class="block">
+              <h3 class="sec-title">Speed test</h3>
+              <p>Render the current template 50 times on the server and report the timings.</p>
+              <div class="btn-row"><button id="btn-run-bench" type="button" class="btn" onclick="runLiveBenchmark()">Run speed test</button></div>
+              <dl class="spec" id="bench-results" hidden>
+                <dt>First render</dt><dd id="bench-cold">0</dd>
+                <dt>Median</dt><dd id="bench-p50">0</dd>
+                <dt>p95</dt><dd id="bench-p95">0</dd>
+                <dt>Compiled</dt><dd id="bench-param">0</dd>
+              </dl>
+            </div>
+          </section>
+
+          <!-- E-invoice -->
+          <section class="insp-section" id="sec-einvoice" role="tabpanel" aria-labelledby="itab-einvoice" hidden>
+            <div class="block">
+              <h2 class="sec-title">E-invoice</h2>
+              <div id="einv-status" class="status-card" aria-live="polite">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <div id="einv-status-title" class="status-title">Preparing</div>
+                  <div id="einv-status-sub" class="status-sub">Loading the engine and fonts.</div>
+                </div>
+                <span id="einv-ms" class="status-ms"></span>
+              </div>
+              <ul id="einv-errors" class="err-list" hidden></ul>
+              <p>Factur-X / ZUGFeRD / XRechnung (EN 16931), PDF/A-3b. The bundled examples pass veraPDF and the Mustang validator.</p>
+            </div>
+            <div class="block">
+              <h3 class="sec-title">Document</h3>
+              <dl class="spec">
+                <dt>Profile</dt><dd id="einv-profile-val">EN 16931</dd>
+                <dt>Conformance</dt><dd id="einv-level">PDF/A-3b</dd>
+                <dt>Embedded</dt><dd id="einv-file">factur-x.xml</dd>
+              </dl>
+            </div>
+            <div class="block">
+              <h3 class="sec-title">Totals</h3>
+              <dl class="spec" id="einv-totals"></dl>
+            </div>
+            <div class="block">
+              <details class="xml-box" id="einv-xml-box">
+                <summary><span id="einv-xml-label">XML</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+                <pre id="einv-xml" class="json-view" tabindex="0" aria-label="Embedded XML"></pre>
+              </details>
+              <div class="btn-row">
+                <button type="button" class="btn" id="btn-copy-xml" onclick="copyEInvoiceXml()">Copy XML</button>
+                <button type="button" class="btn" id="btn-xml" onclick="downloadEInvoiceXml()">Download XML</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Verify -->
+          <section class="insp-section" id="sec-verify" role="tabpanel" aria-labelledby="itab-verify" hidden>
+            <div class="block">
+              <h2 class="sec-title">Verify a PDF</h2>
+              <button type="button" class="dropzone" onclick="triggerPdfUpload()">
+                <svg class="i" aria-hidden="true"><use href="#i-upload"/></svg>
+                <b>Choose a PDF</b>
+                <span>or drop one anywhere on this page</span>
+              </button>
+              <div id="verify-msg" class="inline-msg" role="alert"></div>
+              <div id="verify-result" class="verify-result" hidden>
+                <div>
+                  <div class="verify-file" id="verify-file"></div>
+                  <div class="verify-sub" id="verify-size"></div>
+                </div>
+                <span id="verify-pill" class="pill neutral" style="justify-self:end"></span>
+              </div>
+            </div>
+            <div class="block">
+              <div class="row">
+                <h3 class="sec-title">Embedded JSON</h3>
+                <span class="sec-meta">velox-payload.json</span>
+              </div>
+              <p>The data the PDF was made from, stored inside the signed bytes.</p>
+              <pre id="facturx-payload-pre" class="json-view" tabindex="0" aria-label="Embedded JSON"></pre>
+              <div class="btn-row">
+                <button type="button" class="btn" id="btn-copy-json" onclick="copyFacturXPayload()">Copy JSON</button>
+                <button type="button" class="btn" id="btn-export-csv" onclick="exportFacturXCsv()">Export line items as CSV</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Status bar -->
+  <footer class="statusbar">
+    <div class="status-left" aria-live="polite">
+      <span><b id="m-render">0 ms</b> render</span>
+      <span class="sep hide-narrow tpl-only" aria-hidden="true">·</span>
+      <span class="hide-narrow tpl-only"><b id="m-sign">0 ms</b> sign</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <button type="button" id="einv-chip" class="sig-link einv-only" onclick="showInspector('einvoice')"><span class="dot" aria-hidden="true"></span><span id="einv-chip-text">PDF/A-3b</span></button>
+      <button type="button" id="sig-badge" class="sig-link tpl-only" onclick="showInspector('signature')"><span class="dot" aria-hidden="true"></span><span id="sig-badge-text">Signing</span></button>
+      <span class="sep tpl-only" aria-hidden="true">·</span>
+      <span class="tpl-only"><b id="m-pages">1</b> <span id="m-pages-lbl">page</span></span>
+      <span class="sep hide-xs" aria-hidden="true">·</span>
+      <span class="hide-xs"><b id="m-size">0 KB</b></span>
+    </div>
+    <div class="status-right">
+      <span id="engine-note" class="hide-narrow"></span>
+      <button type="button" id="btn-theme" class="btn btn-ghost btn-icon" onclick="toggleTheme()" aria-label="Switch to dark theme"><svg class="i"><use id="theme-icon" href="#i-moon"/></svg></button>
+    </div>
+  </footer>
+</div>
+
+<!-- Drop overlay -->
+<div id="drag-overlay" class="drag-overlay" aria-hidden="true">
+  <div class="drag-card">
+    <svg class="i"><use href="#i-upload"/></svg>
+    <b>Drop the PDF to verify it</b>
+    <span>We check the signature and read any embedded JSON.</span>
+  </div>
+</div>
+
+<input type="file" id="pdf-file-picker" accept=".pdf,application/pdf" hidden onchange="handlePickedPdfFile(this.files[0]); this.value='';">
+<input type="file" id="logo-uploader-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden onchange="handleLogoUpload(this.files[0]); this.value='';">
+
+<script>
+// ---------- State ----------
+const htmlEd = document.getElementById('html-ed');
+const jsonEd = document.getElementById('json-ed');
+const canvas = document.getElementById('pdf-canvas');
+const ctx = canvas.getContext('2d');
+const iframeFallback = document.getElementById('pdf-fallback');
+const viewerBox = document.getElementById('viewer-box');
+const workspace = document.getElementById('workspace');
+const mqMobile = window.matchMedia('(max-width: 899px)');
+
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+let currentPdfDoc = null;
+let currentPdfBase64 = null;
+let currentSignatureInfo = null;
+let currentSignMs = 0;
+let currentPageNum = 1;
+let currentZoom = 1.0;
+let fitMode = true;
+let compileTimer = null;
+let compileSeq = 0;
+let renderSeq = 0;
+let isTampered = false;
+let showingBatchItem = false;
+let currentDataMode = 'form';
+let currentInspectorTab = 'signature';
+let mode = 'template'; // 'template' or 'einvoice'
+
+// ---------- Theme ----------
+function effectiveTheme() {
+  const t = document.documentElement.getAttribute('data-theme');
+  if (t === 'light' || t === 'dark') return t;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function syncThemeButton() {
+  const dark = effectiveTheme() === 'dark';
+  document.getElementById('theme-icon').setAttribute('href', dark ? '#i-sun' : '#i-moon');
+  document.getElementById('btn-theme').setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+}
+function toggleTheme() {
+  const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('velox-theme', next); } catch {}
+  syncThemeButton();
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeButton);
+syncThemeButton();
+
+// ---------- Layout: views, tabs, inspector ----------
+function setSelected(ids, activeId) {
+  ids.forEach((id) => document.getElementById(id).setAttribute('aria-selected', String(id === activeId)));
+}
+
+function setView(view) {
+  workspace.dataset.view = view;
+  setSelected(['view-btn-template', 'view-btn-preview', 'view-btn-inspector'], `view-btn-${view}`);
+  if (view === 'inspector') onInspectorShown();
+}
+
+function setTemplateTab(tab) {
+  setSelected(['tab-html', 'tab-data'], `tab-${tab}`);
+  document.getElementById('tpl-html').hidden = tab !== 'html';
+  document.getElementById('tpl-data').hidden = tab !== 'data';
+  document.getElementById('data-mode-toggle').hidden = tab !== 'data' || mode === 'einvoice';
+  document.getElementById('btn-wrap').hidden = tab !== 'html';
+  if (mode === 'einvoice') {
+    document.getElementById('visual-form-container').style.display = 'none';
+    jsonEd.style.display = 'block';
+  } else if (tab === 'data' && currentDataMode === 'form') rebuildVisualForm();
+}
+
+function applyInspectorState() {
+  const inspector = document.getElementById('inspector');
+  const open = workspace.dataset.inspector === 'open';
+  inspector.inert = !mqMobile.matches && !open;
+  document.getElementById('btn-toggle-inspector').setAttribute('aria-expanded', String(open));
+}
+
+function toggleInspector(force) {
+  const open = typeof force === 'boolean' ? force : workspace.dataset.inspector !== 'open';
+  workspace.dataset.inspector = open ? 'open' : 'closed';
+  applyInspectorState();
+  if (open) onInspectorShown();
+  else restoreMainPreview();
+}
+
+function setInspectorTab(tab) {
+  if (currentInspectorTab === 'batch' && tab !== 'batch') restoreMainPreview();
+  currentInspectorTab = tab;
+  setSelected(['itab-signature', 'itab-einvoice', 'itab-batch', 'itab-verify'], `itab-${tab}`);
+  ['signature', 'einvoice', 'batch', 'verify'].forEach((t) => { document.getElementById(`sec-${t}`).hidden = t !== tab; });
+  onInspectorShown();
+}
+
+function showInspector(tab) {
+  if (tab) setInspectorTab(tab);
+  if (mqMobile.matches) setView('inspector');
+  else toggleInspector(true);
+}
+
+function onInspectorShown() {
+  if (currentInspectorTab === 'signature') updateTamperInspectorUI(currentSignatureInfo, isTampered);
+  if (currentInspectorTab === 'verify') refreshEmbeddedJson();
+  if (currentInspectorTab === 'batch' && !batchState.active && mode !== 'einvoice') {
+    batchState.active = true;
+    runBatchMailMerge();
+  }
+}
+
+function restoreMainPreview() {
+  if (!showingBatchItem || !currentPdfBase64) return;
+  showingBatchItem = false;
+  renderPdfBuffer(currentPdfBase64);
+  setDownloadLink(currentPdfBase64, 'velox-document.pdf');
+}
+
+workspace.dataset.inspector = window.innerWidth >= 1280 ? 'open' : 'closed';
+applyInspectorState();
+mqMobile.addEventListener('change', applyInspectorState);
+
+// ---------- Code editor (highlighted pre under a transparent textarea) ----------
+const htmlHl = document.getElementById('html-hl');
+const htmlEditor = document.getElementById('html-editor');
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+const esc = (t) => t.replace(/[&<>]/g, (c) => ESC[c]);
+
+function tokenizeHtml(src) {
+  const out = [];
+  const push = (type, text) => { if (text) out.push([type, text]); };
+  // split {{ }} template expressions out of any run of text
+  const pushT = (type, text) => {
+    let last = 0;
+    text.replace(/\{\{[\s\S]*?\}\}/g, (m, i) => { push(type, text.slice(last, i)); push('tpl', m); last = i + m.length; return m; });
+    push(type, text.slice(last));
+  };
+  const css = (text) => {
+    const re = /(\/\*[\s\S]*?\*\/)|(\{\{[\s\S]*?\}\})|("[^"]*"|'[^']*')|([{}:;,()])|(@[\w-]+)|([\w-]+)(?=\s*:(?![^{]*\{))|([^\/"'{}:;,()@{]+|[\s\S])/g;
+    let depth = 0, m, afterColon = false;
+    while ((m = re.exec(text))) {
+      if (m[1]) push('com', m[1]);
+      else if (m[2]) push('tpl', m[2]);
+      else if (m[3]) push('str', m[3]);
+      else if (m[4]) { const c = m[4]; if (c === '{') depth++; if (c === '}') depth = Math.max(0, depth - 1); afterColon = c === ':' && depth > 0; if (c === ';' || c === '}') afterColon = false; push('pun', c); }
+      else if (m[5]) push('sel', m[5]);
+      else if (m[6] && depth > 0 && !afterColon) push('prop', m[6]);
+      else push(depth === 0 ? 'sel' : 'txt', m[0]);
+    }
+  };
+  let i = 0;
+  const n = src.length;
+  while (i < n) {
+    if (src.startsWith('<!--', i)) {
+      const e = src.indexOf('-->', i + 4); const end = e < 0 ? n : e + 3;
+      push('com', src.slice(i, end)); i = end; continue;
+    }
+    const tm = /^<\/?([A-Za-z!][\w:-]*)/.exec(src.slice(i, i + 64));
+    if (src[i] === '<' && tm) {
+      const name = tm[1].toLowerCase();
+      push('pun', src[i + 1] === '/' ? '</' : '<'); push('tag', tm[1]); i += tm[0].length;
+      const isClose = src[i - tm[0].length + 1] === '/';
+      // attributes
+      while (i < n && src[i] !== '>') {
+        const rest = src.slice(i, i + 4096);
+        let m;
+        if ((m = /^\s+/.exec(rest))) { push('txt', m[0]); }
+        else if ((m = /^\/?>/.exec(rest)) && m[0] === '/>') { break; }
+        else if ((m = /^\{\{[\s\S]*?\}\}/.exec(rest))) { push('tpl', m[0]); }
+        else if ((m = /^"[^"]*"|^'[^']*'/.exec(rest))) { pushT('str', m[0]); }
+        else if ((m = /^=/.exec(rest))) { push('pun', m[0]); }
+        else if ((m = /^[^\s=>"'\/{]+/.exec(rest))) { push('attr', m[0]); }
+        else { m = [rest[0]]; push('pun', m[0]); }
+        i += m[0].length;
+      }
+      if (src.startsWith('/>', i)) { push('pun', '/>'); i += 2; }
+      else if (src[i] === '>') { push('pun', '>'); i += 1; }
+      if (!isClose && (name === 'style' || name === 'script')) {
+        const close = src.toLowerCase().indexOf(`</${name}`, i); const end = close < 0 ? n : close;
+        if (name === 'style') css(src.slice(i, end)); else pushT('txt', src.slice(i, end));
+        i = end;
+      }
+      continue;
+    }
+    const next = src.indexOf('<', i + 1); const end = next < 0 ? n : next;
+    pushT('txt', src.slice(i, end)); i = end;
+  }
+  return out;
+}
+
+function highlightHtml(src) {
+  const toks = tokenizeHtml(src);
+  let lineNo = 1;
+  let html = `<span class="ln-row"><span class="ln">1</span>`;
+  for (const [type, text] of toks) {
+    const parts = text.split('\n');
+    parts.forEach((part, k) => {
+      if (k > 0) { lineNo++; html += `</span><span class="ln-row"><span class="ln">${lineNo}</span>`; }
+      if (part) html += type === 'txt' ? esc(part) : `<span class="t-${type}">${esc(part)}</span>`;
+    });
+  }
+  html += '</span>';
+  // empty rows need a character so they keep their height
+  return html.replace(/(<span class="ln">\d+<\/span>)<\/span>/g, '$1 </span>');
+}
+
+let hlFrame = 0;
+function scheduleHighlight() {
+  if (hlFrame) return;
+  hlFrame = requestAnimationFrame(() => { hlFrame = 0; htmlHl.innerHTML = highlightHtml(htmlEd.value); });
+}
+function setHtml(v) { htmlEd.value = v; scheduleHighlight(); }
+htmlEd.addEventListener('input', scheduleHighlight);
+
+function toggleWrap(force) {
+  const on = typeof force === 'boolean' ? force : htmlEditor.dataset.wrap !== 'on';
+  htmlEditor.dataset.wrap = on ? 'on' : 'off';
+  htmlEd.setAttribute('wrap', on ? 'soft' : 'off');
+  document.getElementById('btn-wrap').setAttribute('aria-pressed', String(on));
+  try { localStorage.setItem('velox-wrap', on ? 'on' : 'off'); } catch {}
+}
+try { if (localStorage.getItem('velox-wrap') === 'off') toggleWrap(false); } catch {}
+
+// ---------- Data editor ----------
+function setDataMode(mode) {
+  currentDataMode = mode;
+  setSelected(['btn-mode-form', 'btn-mode-json'], mode === 'form' ? 'btn-mode-form' : 'btn-mode-json');
+  const formPane = document.getElementById('visual-form-container');
+  if (mode === 'form') {
+    formPane.style.display = 'flex';
+    jsonEd.style.display = 'none';
+    rebuildVisualForm();
+  } else {
+    formPane.style.display = 'none';
+    jsonEd.style.display = 'block';
+  }
+}
+
+function getFormData() {
+  try {
+    return jsonEd.value.trim() ? JSON.parse(jsonEd.value) : {};
+  } catch {
+    return {};
+  }
+}
+
+function syncFormToJson(data) {
+  jsonEd.value = JSON.stringify(data, null, 2);
+  clearTimeout(compileTimer);
+  compileTimer = setTimeout(compileNow, 160);
+}
+
+const LOGO_PRESETS = {
+  shield: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #818cf8;"><path d="M 12 2 A 10 10 0 1 0 22 12 A 10 10 0 0 0 12 2 Z"/><path d="M 9 12 L 11 14 L 15 10" stroke="#ffffff"/></svg>`,
+  indigo: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4.9V17L12 22 3 17V6.9z"/><circle cx="12" cy="12" r="3" fill="#6366f1"/></svg>`,
+  gold: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>`,
+  globe: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+};
+
+function injectLogoIntoTemplate(logoHtml) {
+  let html = htmlEd.value;
+  const svgRegex = /<svg\b[^>]*width=["']28["'][^>]*>[\s\S]*?<\/svg>/i;
+  const brandImgRegex = /<img\b[^>]*class=["'][^"']*brand-logo[^"']*["'][^>]*>/i;
+  const genericImgRegex = /<img\b[^>]*style=["'][^"']*height:\s*28px[^"']*["'][^>]*>/i;
+
+  if (svgRegex.test(html)) {
+    html = html.replace(svgRegex, logoHtml);
+  } else if (brandImgRegex.test(html)) {
+    html = html.replace(brandImgRegex, logoHtml);
+  } else if (genericImgRegex.test(html)) {
+    html = html.replace(genericImgRegex, logoHtml);
+  } else if (html.includes('{{.Company}}')) {
+    html = html.replace('{{.Company}}', `${logoHtml} {{.Company}}`);
+  } else {
+    html = html.replace(/<body[^>]*>/i, (m) => `${m}\n<div style="padding:10px">${logoHtml}</div>`);
+  }
+  setHtml(html);
+  compileNow();
+}
+
+function applyLogoPreset(presetKey) {
+  injectLogoIntoTemplate(LOGO_PRESETS[presetKey] || LOGO_PRESETS.shield);
+}
+function resetLogoToDefault() { applyLogoPreset('shield'); }
+
+function handleLogoUpload(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+    reader.onload = (e) => {
+      let svgText = e.target.result.trim();
+      if (!svgText.includes('width=') && !svgText.includes('height=')) {
+        svgText = svgText.replace('<svg', '<svg width="28" height="28"');
+      }
+      injectLogoIntoTemplate(svgText);
+    };
+    reader.readAsText(file);
+  } else {
+    reader.onload = (e) => {
+      const imgHtml = `<img class="brand-logo" src="${e.target.result}" style="height: 28px; width: auto; object-fit: contain; vertical-align: middle;" alt="Logo" />`;
+      injectLogoIntoTemplate(imgHtml);
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function humanize(key) {
+  const s = String(key).replace(/[_-]+/g, ' ').replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim().toLowerCase();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  children.forEach((c) => node.appendChild(c));
+  return node;
+}
+
+let fieldIdSeq = 0;
+function makeField(labelText, rawKey, value, onInput) {
+  const id = `fld-${++fieldIdSeq}`;
+  const input = el('input', { class: 'input', type: 'text', id, oninput: (e) => onInput(e.target.value) });
+  input.value = value;
+  return el('div', { class: 'field' }, [el('label', { for: id, text: labelText, title: rawKey }), input]);
+}
+
+function rebuildVisualForm() {
+  const container = document.getElementById('visual-form-container');
+  if (!container) return;
+  const data = getFormData();
+  container.innerHTML = '';
+
+  // Logo
+  const logoSec = el('div', { class: 'form-section', id: 'visual-form-box' }, [
+    el('div', { class: 'form-section-head' }, [
+      el('h3', { class: 'sec-title', text: 'Logo' }),
+      el('div', { class: 'btn-row' }, [
+        el('button', { type: 'button', class: 'btn', text: 'Upload', onclick: () => document.getElementById('logo-uploader-input').click() }),
+        el('button', { type: 'button', class: 'btn btn-ghost', text: 'Reset', onclick: resetLogoToDefault }),
+      ]),
+    ]),
+    el('div', { class: 'logo-row' }, [
+      ['shield', 'Velox'], ['indigo', 'Hex'], ['gold', 'Treasury'], ['globe', 'Globe'],
+    ].map(([k, label]) => el('button', { type: 'button', class: 'btn', text: label, onclick: () => applyLogoPreset(k) }))),
+  ]);
+  container.appendChild(logoSec);
+
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    container.appendChild(el('p', { class: 'sec-meta', text: 'The data is not a JSON object. Switch to JSON to edit it.' }));
+    return;
+  }
+
+  const scalarKeys = [], arrayKeys = [], objKeys = [];
+  for (const k of Object.keys(data)) {
+    const val = data[k];
+    if (Array.isArray(val)) arrayKeys.push(k);
+    else if (val !== null && typeof val === 'object') objKeys.push(k);
+    else scalarKeys.push(k);
+  }
+
+  if (scalarKeys.length > 0) {
+    const grid = el('div', { class: 'form-grid' });
+    for (const key of scalarKeys) {
+      grid.appendChild(makeField(humanize(key), key, data[key] ?? '', (v) => {
+        const cur = getFormData();
+        cur[key] = v;
+        syncFormToJson(cur);
+      }));
+    }
+    container.appendChild(el('div', { class: 'form-section' }, [
+      el('div', { class: 'form-section-head' }, [el('h3', { class: 'sec-title', text: 'Fields' })]),
+      grid,
+    ]));
+  }
+
+  for (const arrKey of arrayKeys) {
+    const arr = data[arrKey] || [];
+    const addBtn = el('button', { type: 'button', class: 'btn', text: 'Add row', onclick: () => {
+      const cur = getFormData();
+      if (!Array.isArray(cur[arrKey])) cur[arrKey] = [];
+      const sample = cur[arrKey][0] || { Name: 'New line item', Category: 'Service', Qty: '1', Price: '$1,000.00', Total: '$1,000.00' };
+      const newItem = {};
+      for (const k of Object.keys(sample)) {
+        newItem[k] = k === 'Qty' ? '1' : (k === 'Price' || k === 'Total' ? '$1,000.00' : (k === 'Name' ? 'New line item' : 'General'));
+      }
+      cur[arrKey].push(newItem);
+      syncFormToJson(cur);
+      rebuildVisualForm();
+    } });
+    const head = el('div', { class: 'form-section-head' }, [
+      el('h3', { class: 'sec-title' }, [document.createTextNode(humanize(arrKey) + ' '), el('span', { class: 'sec-meta num', text: String(arr.length) })]),
+      addBtn,
+    ]);
+    const section = el('div', { class: 'form-section form-array-section' }, [head]);
+
+    if (arr.length > 0 && typeof arr[0] === 'object' && arr[0] !== null) {
+      const colSet = new Set();
+      arr.forEach((item) => { if (item && typeof item === 'object') Object.keys(item).forEach((k) => colSet.add(k)); });
+      const columns = Array.from(colSet);
+      const thead = el('thead', {}, [el('tr', {}, [
+        ...columns.map((c) => el('th', { scope: 'col', text: humanize(c) })),
+        el('th', { scope: 'col' }, [el('span', { class: 'sr-only', text: 'Remove' })]),
+      ])]);
+      const tbody = el('tbody');
+      arr.forEach((item, rowIdx) => {
+        const tr = el('tr');
+        columns.forEach((col) => {
+          const input = el('input', { class: 'input', 'aria-label': `${humanize(col)}, row ${rowIdx + 1}`, oninput: (e) => {
+            const cur = getFormData();
+            if (cur[arrKey] && cur[arrKey][rowIdx]) {
+              cur[arrKey][rowIdx][col] = e.target.value;
+              syncFormToJson(cur);
+            }
+          } });
+          input.value = item[col] ?? '';
+          tr.appendChild(el('td', {}, [input]));
+        });
+        const del = el('button', { type: 'button', class: 'btn btn-ghost btn-icon', 'aria-label': `Remove row ${rowIdx + 1}`, onclick: () => {
+          const cur = getFormData();
+          if (cur[arrKey]) {
+            cur[arrKey].splice(rowIdx, 1);
+            syncFormToJson(cur);
+            rebuildVisualForm();
+          }
+        } });
+        del.innerHTML = '<svg class="i" aria-hidden="true"><use href="#i-x"/></svg>';
+        tr.appendChild(el('td', { class: 'act' }, [del]));
+        tbody.appendChild(tr);
+      });
+      section.appendChild(el('div', { class: 'table-wrap' }, [el('table', { class: 'data-table' }, [thead, tbody])]));
+    }
+    container.appendChild(section);
+  }
+
+  for (const oKey of objKeys) {
+    const subObj = data[oKey];
+    if (!subObj || typeof subObj !== 'object') continue;
+    const grid = el('div', { class: 'form-grid' });
+    for (const subK of Object.keys(subObj)) {
+      if (typeof subObj[subK] === 'object') continue;
+      grid.appendChild(makeField(humanize(subK), `${oKey}.${subK}`, subObj[subK] ?? '', (v) => {
+        const cur = getFormData();
+        if (cur[oKey]) {
+          cur[oKey][subK] = v;
+          syncFormToJson(cur);
+        }
+      }));
+    }
+    container.appendChild(el('div', { class: 'form-section' }, [
+      el('div', { class: 'form-section-head' }, [el('h3', { class: 'sec-title', text: humanize(oKey) })]),
+      grid,
+    ]));
+  }
+}
+
+// Resolves once the browser engine module has loaded (or failed to load).
+let resolveEngineReady;
+const engineReady = new Promise((resolve) => { resolveEngineReady = (p) => p.then(resolve, resolve); });
+
+// ---------- Load and presets ----------
+// The server is optional: with no server (static host, offline) presets come from presets.json,
+// which scripts/build-browser.mjs writes from the same PRESETS the server uses.
+let staticPresets = null;
+async function loadPreset(presetId) {
+  try {
+    const res = await fetch(`/api/defaults?preset=${encodeURIComponent(presetId)}`);
+    if (res.ok) return await res.json();
+  } catch {}
+  if (!staticPresets) {
+    const res = await fetch('presets.json');
+    if (!res.ok) throw new Error('presets.json not found');
+    staticPresets = await res.json();
+  }
+  const preset = staticPresets[presetId] || Object.values(staticPresets).find((p) => p.id === presetId);
+  if (!preset) throw new Error(`Unknown preset ${presetId}`);
+  return preset;
+}
+
+loadPreset('invoice')
+  .then((d) => {
+    setHtml(d.template);
+    jsonEd.value = JSON.stringify(d.data, null, 2);
+    rebuildVisualForm();
+    compileNow();
+  })
+  .catch(() => {
+    rebuildVisualForm();
+    compileNow();
+  })
+  .then(openDeepLink);
+
+// Shareable links: ?example=germanB2B opens an e-invoice example, ?preset=ledger a template preset.
+function openDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const example = params.get('example');
+  const preset = params.get('preset');
+  const target = example ? `einv:${example}` : preset;
+  if (!target) return;
+  const select = document.querySelector('select option[value="' + CSS.escape(target) + '"]')?.parentElement?.closest('select');
+  if (!select) return;
+  select.value = target;
+  switchPreset(target);
+}
+
+async function switchPreset(presetId) {
+  if (presetId.startsWith('einv:')) return enterEInvoice(presetId.slice(5));
+  if (mode === 'einvoice') leaveEInvoice();
+  try {
+    const data = await loadPreset(presetId);
+    setHtml(data.template);
+    jsonEd.value = JSON.stringify(data.data, null, 2);
+    if (data.sign !== undefined) document.getElementById('chk-sign').checked = Boolean(data.sign);
+    currentPageNum = 1;
+    batchState.active = false;
+    batchState.items = [];
+    batchState.ledgerCsv = '';
+    rebuildVisualForm();
+    compileNow();
+    if (currentInspectorTab === 'batch' && workspace.dataset.inspector === 'open') onInspectorShown();
+  } catch (e) {
+    console.warn('Could not load preset', e);
+  }
+}
+
+// ---------- Compile and render ----------
+function formatMs(ms) {
+  const n = Number(ms) || 0;
+  return `${n < 10 ? n.toFixed(2) : n.toFixed(1)} ms`;
+}
+
+function setDownloadLink(base64, name) {
+  const dl = document.getElementById('dl-link');
+  dl.href = `data:application/pdf;base64,${base64}`;
+  dl.download = name;
+  dl.removeAttribute('aria-disabled');
+}
+
+function applyCompiledPdf(out, source) {
+  if (!out || out.error) {
+    if (out?.error) console.warn('Compile error:', out.error);
+    return;
+  }
+  currentPdfBase64 = out.pdfBase64;
+  currentSignatureInfo = out.signatureInfo;
+  currentSignMs = out.signMs || 0;
+  isTampered = false;
+  showingBatchItem = false;
+
+  const pages = out.pageCount || 1;
+  document.getElementById('m-render').textContent = formatMs(out.renderMs);
+  document.getElementById('m-sign').textContent = out.signMs ? formatMs(out.signMs) : 'no';
+  document.getElementById('m-pages').textContent = pages;
+  document.getElementById('m-pages-lbl').textContent = pages === 1 ? 'page' : 'pages';
+  document.getElementById('m-size').textContent = `${(out.byteLength / 1024).toFixed(1)} KB`;
+  document.getElementById('engine-note').textContent = source === 'browser' ? 'Rendered in browser' : 'Rendered on server';
+
+  updateSigBadge();
+
+  setDownloadLink(out.pdfBase64, 'velox-document.pdf');
+  renderPdfBuffer(out.pdfBase64);
+  if (currentInspectorTab === 'signature') updateTamperInspectorUI(currentSignatureInfo, false);
+  if (currentInspectorTab === 'verify') refreshEmbeddedJson();
+}
+
+async function compileNow() {
+  if (mode === 'einvoice') return compileEInvoice();
+  const seq = ++compileSeq;
+  let dataVal = {};
+  try { dataVal = jsonEd.value.trim() ? JSON.parse(jsonEd.value) : {}; } catch {}
+  const sign = document.getElementById('chk-sign').checked;
+
+  try {
+    const res = await fetch('/api/render', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html: htmlEd.value, data: dataVal, sign }),
+    });
+    if (res.ok) {
+      const out = await res.json();
+      if (seq === compileSeq) applyCompiledPdf(out, 'server');
+      return;
+    }
+  } catch {
+    // Server offline or static host: fall back to the browser engine.
+  }
+
+  await engineReady;
+  if (seq !== compileSeq) return;
+  if (window.VeloxPDF && (window.VeloxPDF.compilePdfTemplate || window.VeloxPDF.htmlToPdf)) {
+    try {
+      const tStart = performance.now();
+      let pdfBytes;
+      if (window.VeloxPDF.compilePdfTemplate) {
+        pdfBytes = window.VeloxPDF.compilePdfTemplate(htmlEd.value, dataVal)(dataVal);
+      } else {
+        pdfBytes = window.VeloxPDF.htmlToPdf(htmlEd.value, { data: dataVal });
+      }
+      let signMs = 0;
+      let signError = '';
+      if (sign && (window.VeloxPDF.signPdfAsync || window.VeloxPDF.signPdf)) {
+        const s0 = performance.now();
+        // In browsers the async signer uses WebCrypto (about 1 ms); the sync one is pure JS RSA (seconds).
+        try {
+          pdfBytes = window.VeloxPDF.signPdfAsync
+            ? await window.VeloxPDF.signPdfAsync(pdfBytes)
+            : window.VeloxPDF.signPdf(pdfBytes);
+        } catch (err) { signError = String(err?.message || err); }
+        signMs = +(performance.now() - s0).toFixed(2);
+        if (seq !== compileSeq) return;
+      }
+      const renderMs = +(performance.now() - tStart).toFixed(2);
+      const u8 = pdfBytes instanceof Uint8Array ? pdfBytes : new Uint8Array(pdfBytes);
+      let binary = '';
+      for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i]);
+      if (seq !== compileSeq) return;
+      const pageCount = (binary.match(/\/Type\s*\/Page(?![s\w])/g) || []).length || 1;
+      let signatureInfo = { valid: false };
+      if (sign && signError) {
+        signatureInfo = { valid: false, error: 'Signing failed in the browser engine: ' + signError };
+      } else if (sign && window.VeloxPDF.verifyPdfSignature) {
+        try { signatureInfo = window.VeloxPDF.verifyPdfSignature(u8); } catch (err) { signatureInfo = { valid: false, error: String(err?.message || err) }; }
+      }
+      applyCompiledPdf({
+        pdfBase64: btoa(binary),
+        byteLength: u8.length,
+        renderMs,
+        signMs,
+        pageCount,
+        signatureInfo,
+      }, 'browser');
+    } catch (clientErr) {
+      console.warn('Browser render error:', clientErr);
+    }
+  }
+}
+
+function base64ToBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function renderPdfBuffer(base64Data) {
+  if (typeof pdfjsLib === 'undefined') {
+    canvas.style.display = 'none';
+    iframeFallback.style.display = 'block';
+    iframeFallback.src = `data:application/pdf;base64,${base64Data}`;
+    return;
+  }
+  try {
+    canvas.style.display = 'block';
+    iframeFallback.style.display = 'none';
+    const doc = await pdfjsLib.getDocument({ data: base64ToBytes(base64Data) }).promise;
+    const prev = currentPdfDoc;
+    currentPdfDoc = doc;
+    if (prev && prev !== doc) prev.destroy().catch(() => {});
+    document.getElementById('total-page-num').textContent = doc.numPages;
+    if (currentPageNum > doc.numPages) currentPageNum = 1;
+    document.getElementById('cur-page-num').textContent = currentPageNum;
+    await renderPage(currentPageNum);
+  } catch (pdfErr) {
+    if (pdfErr && pdfErr.name === 'RenderingCancelledException') return;
+    console.warn('PDF.js could not render, using the built-in viewer:', pdfErr);
+    canvas.style.display = 'none';
+    iframeFallback.style.display = 'block';
+    iframeFallback.src = `data:application/pdf;base64,${base64Data}`;
+  }
+}
+
+function fitZoomFor(page) {
+  const cs = getComputedStyle(viewerBox);
+  const avail = viewerBox.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  if (avail <= 0) return null;
+  const w = page.getViewport({ scale: 1 }).width;
+  return Math.max(0.25, Math.min(1.4, avail / w));
+}
+
+async function renderPage(pageNum) {
+  const doc = currentPdfDoc;
+  if (!doc) return;
+  const token = ++renderSeq;
+  try {
+    const page = await doc.getPage(pageNum);
+    if (token !== renderSeq) return;
+    if (fitMode) {
+      const z = fitZoomFor(page);
+      if (z === null) return; // pane hidden; ResizeObserver renders when it shows
+      currentZoom = z;
+    }
+    document.getElementById('zoom-lbl').textContent = `${Math.round(currentZoom * 100)}%`;
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const viewport = page.getViewport({ scale: currentZoom * dpr });
+    const off = document.createElement('canvas');
+    off.width = Math.floor(viewport.width);
+    off.height = Math.floor(viewport.height);
+    await page.render({ canvasContext: off.getContext('2d'), viewport }).promise;
+    if (token !== renderSeq) return;
+    canvas.width = off.width;
+    canvas.height = off.height;
+    canvas.style.width = `${off.width / dpr}px`;
+    canvas.style.height = `${off.height / dpr}px`;
+    ctx.drawImage(off, 0, 0);
+    document.getElementById('btn-prev').disabled = pageNum <= 1;
+    document.getElementById('btn-next').disabled = pageNum >= doc.numPages;
+  } catch (err) {
+    if (token === renderSeq && doc === currentPdfDoc && err?.name !== 'RenderingCancelledException') {
+      console.warn('Page render failed:', err);
+    }
+  }
+}
+
+let resizeTimer = null;
+new ResizeObserver(() => {
+  if (!fitMode || !currentPdfDoc) return;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => renderPage(currentPageNum), 90);
+}).observe(viewerBox);
+
+function changePage(delta) {
+  if (!currentPdfDoc) return;
+  const target = currentPageNum + delta;
+  if (target >= 1 && target <= currentPdfDoc.numPages) {
+    currentPageNum = target;
+    document.getElementById('cur-page-num').textContent = currentPageNum;
+    renderPage(currentPageNum);
+  }
+}
+
+function adjustZoom(delta) {
+  fitMode = false;
+  currentZoom = Math.max(0.4, Math.min(2.5, currentZoom + delta));
+  renderPage(currentPageNum);
+}
+
+function resetZoom() {
+  fitMode = true;
+  renderPage(currentPageNum);
+}
+
+// ---------- Signature and tamper test ----------
+// One truth source for the inspector card and the status bar.
+function signatureState(info = currentSignatureInfo, tampered = isTampered) {
+  if (info && info.valid && !tampered) return 'valid';
+  if (tampered || (info && info.valid === false && (info.byteRange || info.present))) return 'broken';
+  return 'unsigned';
+}
+function updateSigBadge() {
+  const state = signatureState();
+  const badge = document.getElementById('sig-badge');
+  badge.classList.toggle('is-signed', state === 'valid');
+  badge.classList.toggle('is-broken', state === 'broken');
+  document.getElementById('sig-badge-text').textContent = state === 'valid' ? 'Signed' : state === 'broken' ? 'Signature broken' : 'Not signed';
+}
+function formatPdfTime(t) {
+  const m = /^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z$/.exec(String(t));
+  return m ? `20${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]} UTC` : String(t);
+}
+function updateTamperInspectorUI(info, tampered = false, verifyMs = null) {
+  const card = document.getElementById('tamper-status-card');
+  const title = document.getElementById('tamper-status-title');
+  const sub = document.getElementById('tamper-status-sub');
+  const ms = document.getElementById('tamper-ms-pill');
+  const signOn = document.getElementById('chk-sign').checked;
+  const btnTamper = document.getElementById('btn-tamper');
+  const btnRestore = document.getElementById('btn-restore');
+  if (!currentPdfBase64) return;
+
+  const state = signatureState(info, tampered);
+  if (state === 'valid') {
+    card.className = 'status-card is-valid';
+    title.textContent = 'Signature valid';
+    sub.textContent = 'The SHA-256 digest of the signed bytes matches the signature.';
+    ms.textContent = verifyMs != null ? `${formatMs(verifyMs)} to check` : (currentSignMs ? `${formatMs(currentSignMs)} to sign` : '');
+  } else if (state === 'broken') {
+    card.className = 'status-card is-rejected';
+    title.textContent = 'Signature broken';
+    sub.textContent = tampered
+      ? 'One byte changed after signing, so the digest no longer matches.'
+      : (info.error || 'The digest does not match the signature.');
+    ms.textContent = verifyMs != null ? `${formatMs(verifyMs)} to check` : '';
+  } else {
+    card.className = 'status-card';
+    title.textContent = signOn ? 'Not signed' : 'Signing is off';
+    sub.textContent = signOn ? 'This document has no signature.' : 'Turn on Sign PDF to add an ISO 32000 signature.';
+    ms.textContent = '';
+  }
+
+  const canTest = Boolean(currentSignatureInfo && currentSignatureInfo.valid !== undefined && signOn);
+  btnTamper.disabled = !canTest || tampered;
+  btnRestore.disabled = !canTest || !tampered;
+
+  if (info?.signerName) document.getElementById('insp-signer').textContent = info.signerName;
+  if (info?.byteRange) document.getElementById('insp-byterange').textContent = `[${info.byteRange.join(', ')}]`;
+  if (info?.digestHex) document.getElementById('insp-digest').textContent = info.digestHex;
+  if (info?.signedAt || info?.signingTime) document.getElementById('insp-time').textContent = formatPdfTime(info.signedAt || info.signingTime);
+  if (info?.reason) document.getElementById('insp-reason').textContent = info.reason;
+}
+
+async function runTamperTest(mutate) {
+  if (!currentPdfBase64) return;
+  try {
+    const res = await fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pdfBase64: currentPdfBase64, tamper1Byte: mutate, tamperOffset: 32 }),
+    });
+    const data = await res.json();
+    isTampered = mutate;
+    updateTamperInspectorUI(data, mutate, data.verifyMs);
+    updateSigBadge();
+    (mutate ? document.getElementById('btn-restore') : document.getElementById('btn-tamper')).focus({ preventScroll: true });
+  } catch (e) {
+    console.warn('Tamper test failed:', e);
+  }
+}
+
+// ---------- Speed test (our own timings only) ----------
+async function runLiveBenchmark() {
+  const btn = document.getElementById('btn-run-bench');
+  btn.disabled = true;
+  btn.textContent = 'Running 50 renders';
+  try {
+    const res = await fetch('/api/benchmark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ iterations: 50, html: htmlEd.value, data: getFormData() }),
+    });
+    const b = await res.json();
+    document.getElementById('bench-cold').textContent = formatMs(b.veloxColdMs);
+    document.getElementById('bench-p50').textContent = `${formatMs(b.veloxWarmP50Ms)}, ${Number(b.veloxPagesPerSec).toLocaleString()} pages/s`;
+    document.getElementById('bench-p95').textContent = formatMs(b.veloxWarmP95Ms);
+    document.getElementById('bench-param').textContent = `${formatMs(b.veloxParametricP50Ms)} median`;
+    document.getElementById('bench-results').hidden = false;
+  } catch (err) {
+    console.warn('Speed test failed:', err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Run speed test again';
+  }
+}
+
+// ---------- Embedded JSON ----------
+let currentFacturXCsv = '';
+let verifiedFileShown = false;
+
+function refreshEmbeddedJson() {
+  if (verifiedFileShown) return;
+  const pre = document.getElementById('facturx-payload-pre');
+  let dataVal;
+  try { dataVal = jsonEd.value.trim() ? JSON.parse(jsonEd.value) : {}; } catch { dataVal = { error: 'The JSON in the editor is not valid' }; }
+  let shown = dataVal;
+  if (currentPdfBase64) {
+    try {
+      const match = atob(currentPdfBase64).match(/\/EmbeddedFiles\b[\s\S]*?stream[\r\n]+([\s\S]*?)endstream/);
+      if (match && match[1]) shown = JSON.parse(match[1].trim());
+    } catch {}
+  }
+  pre.textContent = JSON.stringify(shown, null, 2);
+  currentFacturXCsv = '';
+}
+
+function copyFacturXPayload() {
+  const pre = document.getElementById('facturx-payload-pre');
+  const btn = document.getElementById('btn-copy-json');
+  const done = () => { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Copy JSON'; }, 1400); };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(pre.textContent || '').then(done, () => {});
+}
+
+htmlEd.addEventListener('input', () => { clearTimeout(compileTimer); compileTimer = setTimeout(compileNow, 160); });
+jsonEd.addEventListener('input', () => { clearTimeout(compileTimer); compileTimer = setTimeout(compileNow, 160); });
+
+// ---------- Drop to verify ----------
+function setupDragAndDrop() {
+  const overlay = document.getElementById('drag-overlay');
+  let dragCounter = 0;
+  const hasFiles = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+  window.addEventListener('dragenter', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragCounter++;
+    overlay.classList.add('active');
+  });
+  window.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', (e) => {
+    if (!hasFiles(e)) return;
+    dragCounter--;
+    if (dragCounter <= 0) { dragCounter = 0; overlay.classList.remove('active'); }
+  });
+  window.addEventListener('drop', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragCounter = 0;
+    overlay.classList.remove('active');
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) handlePdfFile(e.dataTransfer.files[0]);
+  });
+}
+
+function triggerPdfUpload() { document.getElementById('pdf-file-picker').click(); }
+function handlePickedPdfFile(file) { if (file) handlePdfFile(file); }
+
+async function handlePdfFile(file) {
+  if (!file) return;
+  const msg = document.getElementById('verify-msg');
+  showInspector('verify');
+  if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+    msg.textContent = `${file.name} is not a PDF.`;
+    return;
+  }
+  msg.textContent = '';
+  const u8 = new Uint8Array(await file.arrayBuffer());
+  let binary = '';
+  for (let i = 0; i < u8.length; i++) binary += String.fromCharCode(u8[i]);
+  const base64 = btoa(binary);
+
+  currentPdfBase64 = base64;
+  showingBatchItem = false;
+  setDownloadLink(base64, file.name);
+  renderPdfBuffer(base64);
+
+  let inspectResult = null;
+  try {
+    const res = await fetch('/api/inspect-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pdfBase64: base64, fileName: file.name }),
+    });
+    if (res.ok) inspectResult = await res.json();
+  } catch {}
+
+  if (!inspectResult || !inspectResult.ok) {
+    let embeddedJson = null;
+    const match = binary.match(/\/EmbeddedFiles\b[\s\S]*?stream[\r\n]+([\s\S]*?)endstream/);
+    if (match && match[1]) { try { embeddedJson = JSON.parse(match[1].trim()); } catch {} }
+    if (!embeddedJson && window.VeloxPDF?.extractEmbeddedData) { try { embeddedJson = window.VeloxPDF.extractEmbeddedData(u8); } catch {} }
+    const hasSignature = binary.includes('/ByteRange') && binary.includes('/Contents');
+    inspectResult = {
+      ok: true,
+      fileName: file.name,
+      sizeBytes: u8.length,
+      verification: { valid: false, present: hasSignature, error: hasSignature ? 'A signature is present but could not be checked without the server.' : 'This file has no signature.' },
+      embeddedData: embeddedJson,
+      csvText: generateCsvFromData(embeddedJson),
+    };
+  }
+
+  currentSignatureInfo = inspectResult.verification;
+  isTampered = false;
+  currentFacturXCsv = inspectResult.csvText || generateCsvFromData(inspectResult.embeddedData);
+  verifiedFileShown = true;
+  updateSigBadge();
+  updateTamperInspectorUI(currentSignatureInfo, false);
+
+  const valid = Boolean(inspectResult.verification?.valid);
+  document.getElementById('verify-file').textContent = file.name;
+  document.getElementById('verify-size').textContent = `${(u8.length / 1024).toFixed(1)} KB`;
+  const pill = document.getElementById('verify-pill');
+  pill.className = `pill ${valid ? 'ok' : 'bad'}`;
+  pill.textContent = valid ? 'Signature valid' : 'Not verified';
+  pill.title = inspectResult.verification?.error || '';
+  document.getElementById('verify-result').hidden = false;
+
+  document.getElementById('facturx-payload-pre').textContent = inspectResult.embeddedData
+    ? JSON.stringify(inspectResult.embeddedData, null, 2)
+    : `{\n  "status": "No embedded JSON found in this PDF",\n  "file": ${JSON.stringify(file.name)}\n}`;
+}
+
+function generateCsvFromData(data) {
+  if (!data || typeof data !== 'object') return '';
+  let items = null;
+  if (Array.isArray(data.Items)) items = data.Items;
+  else if (Array.isArray(data.items)) items = data.items;
+  else if (Array.isArray(data.lineItems)) items = data.lineItems;
+  else {
+    for (const k of Object.keys(data)) {
+      if (Array.isArray(data[k]) && data[k].length > 0 && typeof data[k][0] === 'object') { items = data[k]; break; }
+    }
+  }
+  if (items && items.length > 0) {
+    const keys = Object.keys(items[0]);
+    let csv = keys.join(',') + '\n';
+    items.forEach((row) => { csv += keys.map((k) => `"${String(row[k] ?? '').replace(/"/g, '""')}"`).join(',') + '\n'; });
+    return csv;
+  }
+  let csv = 'Field,Value\n';
+  for (const [k, v] of Object.entries(data)) {
+    if (typeof v !== 'object') csv += `"${k}","${String(v).replace(/"/g, '""')}"\n`;
+  }
+  return csv;
+}
+
+function downloadText(text, name, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportFacturXCsv() {
+  if (!currentFacturXCsv) {
+    let dataVal = {};
+    try { dataVal = JSON.parse(document.getElementById('facturx-payload-pre').textContent); } catch {}
+    currentFacturXCsv = generateCsvFromData(dataVal) || 'Item,Category,Qty,Unit price,Line total\n';
+  }
+  downloadText(currentFacturXCsv, 'embedded-json-line-items.csv', 'text/csv;charset=utf-8;');
+}
+
+// ---------- Batch ----------
+const BATCH_ENTERPRISE_NAMES = [
+  'Stripe Global Inc.', 'OpenAI Technologies', 'Vercel Edge Systems', 'Supabase Cloud Inc.',
+  'Datadog Observability', 'Anthropic PBC', 'Cloudflare Networks', 'Shopify Commerce',
+  'GitHub Operations', 'Figma Design Labs', 'Linear Software Inc.', 'Notion Labs Corp',
+  'Retool Enterprise', 'Snowflake Data Inc.', 'Palantir Technologies', 'Scale AI Inc.',
+  'Ramp Financial', 'Brex Corporate Pay', 'Coinbase Global', 'Databricks Cloud',
+  'MongoDB Atlas', 'Postman API Platform', 'Twilio Communications', 'Elasticsearch Systems',
+  'HashiCorp Infrastructure', 'GitLab Enterprise', 'Atlassian Cloud', 'Canva Creative',
+  'Discord Platform', 'Framer Interactive', 'Plaid FinTech Inc.', 'Zapier Automation',
+  'Airtable Systems', 'Sentry Telemetry Inc.', 'LaunchDarkly Flags', 'Segment CDP',
+  'Kaggle Data Labs', 'Weights & Biases', 'Cohere Technologies', 'Mistral AI Global',
+  'Perplexity AI Corp', 'Midjourney Labs', 'Runway AI Systems', 'EleutherAI Research',
+  'Hugging Face Community', 'Anyscale Ray Cloud', 'Modal Labs Edge', 'Fly.io Systems',
+  'Railway Cloud Corp', 'Render Deployment', 'Neon Postgres', 'PlanetScale MySQL',
+  'Upstash Serverless', 'Pinecone Vector DB', 'Weaviate AI Engine', 'Qdrant Vector Inc.',
+  'Chroma Cloud Systems', 'LangChain Frameworks', 'LlamaIndex Enterprise', 'Cerebras Systems',
+  'Groq Inference Labs', 'Together AI Cloud', 'Replicate Models', 'OctoAI Inference',
+  'Baseten Systems', 'Fal.ai Realtime', 'Cursor AI Tools', 'Superhuman Mail',
+  'Raycast Systems', 'Arc Browser / The Browser Co', 'Tailscale WireGuard', '1Password Enterprise',
+  'Okta Identity Cloud', 'Wiz Cloud Security', 'CrowdStrike Falcon', 'Cloudflare Workers',
+  'Fastly Edge Compute', 'Akamai Technologies', 'DigitalOcean Cloud', 'Linode Infrastructure',
+  'Hetzner Online GmbH', 'OVHcloud SAS', 'Scaleway Elements', 'CoreWeave GPU Cloud',
+  'Lambda Labs GPU', 'Crusoe Energy Cloud', 'Nebius AI Cloud', 'FluidStack GPU',
+  'Latitude SH Cloud', 'Equinix Metal', 'Iron Mountain Storage', 'PagerDuty Incident',
+  'Datadog Security', 'Grafana Labs Observability', 'Splunk Enterprise', 'Dynatrace Intelligence',
+  'New Relic Systems', 'Honeycomb Observability', 'Checkly Synthetics', 'Better Stack Cloud'
+];
+
+let batchState = { active: false, count: 100, currentIndex: 1, items: [], totalMs: 0, perDocUs: 0, pagesPerSec: 0, ledgerCsv: '' };
+
+function generate100BatchItems(baseData) {
+  const items = [];
+  const baseItems = Array.isArray(baseData?.Items) && baseData.Items.length > 0 ? baseData.Items : [
+    { Name: 'Vector PDF engine license', Category: 'Core SDK', Qty: '1', Price: '$6,500.00', Total: '$6,500.00' },
+    { Name: 'X.509 signing add-on', Category: 'Security', Qty: '2', Price: '$2,400.00', Total: '$4,800.00' },
+    { Name: 'Multi-region deployment pack', Category: 'Cloud', Qty: '1', Price: '$3,520.00', Total: '$3,520.00' },
+  ];
+  for (let i = 0; i < 100; i++) {
+    const custName = BATCH_ENTERPRISE_NAMES[i] || `Customer ${i + 1}`;
+    const invNum = `INV-2026-${String(i + 1).padStart(4, '0')}`;
+    const amountVal = 10000 + ((i * 379) % 45000);
+    const grandTotal = `$${amountVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const methods = ['Instant ACH', 'Wire transfer', 'Corporate card', 'FedNow wire'];
+    const method = methods[i % methods.length];
+    const date = '24 Oct 2026';
+    const custData = {
+      ...(baseData || {}),
+      Company: baseData?.Company || 'VeloxPDF Enterprise Cloud',
+      InvoiceNumber: invNum,
+      CustomerName: custName,
+      CustomerAddress: `${100 + i * 7} Tech Blvd, Suite ${i + 1}, Silicon Valley, CA 94025`,
+      PaymentMethod: method,
+      Date: date,
+      GrandTotal: grandTotal,
+      Items: baseItems.map((item, itIdx) => ({ ...item, Total: itIdx === 0 ? grandTotal : item.Total })),
+    };
+    items.push({ index: i + 1, customer: custName, invoiceNumber: invNum, grandTotal, paymentMethod: method, date, data: custData, pdfBase64: null });
+  }
+  return items;
+}
+
+async function runBatchMailMerge() {
+  const btn = document.getElementById('btn-run-batch');
+  btn.disabled = true;
+  btn.textContent = 'Rendering 100 PDFs';
+  const baseData = getFormData();
+  const htmlTemplate = htmlEd.value;
+
+  try {
+    let out = null;
+    try {
+      const res = await fetch('/api/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: htmlTemplate, baseData, count: 100 }),
+      });
+      if (res.ok) { out = await res.json(); if (!out.ok) out = null; }
+    } catch {}
+
+    const generated = generate100BatchItems(baseData);
+    if (out) {
+      batchState.count = out.count || 100;
+      batchState.totalMs = out.totalMs;
+      batchState.perDocUs = out.perDocUs;
+      batchState.pagesPerSec = out.pagesPerSec;
+      (out.samples || []).forEach((s) => {
+        const idx = s.index !== undefined ? s.index : 0;
+        if (generated[idx]) {
+          generated[idx].pdfBase64 = s.pdfBase64;
+          if (s.customerName || s.customer) generated[idx].customer = s.customerName || s.customer;
+          if (s.invoiceNumber) generated[idx].invoiceNumber = s.invoiceNumber;
+          if (s.grandTotal) generated[idx].grandTotal = s.grandTotal;
+        }
+      });
+    } else if (window.VeloxPDF?.compilePdfTemplate) {
+      const t0 = performance.now();
+      const fn = window.VeloxPDF.compilePdfTemplate(htmlTemplate, baseData);
+      generated.forEach((item, i) => {
+        try {
+          const bytes = fn(item.data);
+          if (i < 20) {
+            const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+            let bin = '';
+            for (let k = 0; k < u8.length; k++) bin += String.fromCharCode(u8[k]);
+            item.pdfBase64 = btoa(bin);
+          }
+        } catch {}
+      });
+      batchState.totalMs = +(performance.now() - t0).toFixed(2);
+      batchState.perDocUs = +((batchState.totalMs * 1000) / 100).toFixed(1);
+      batchState.pagesPerSec = Math.round(100000 / Math.max(0.01, batchState.totalMs));
+    }
+    batchState.items = generated;
+
+    let csv = 'InvoiceNumber,CustomerName,Date,PaymentMethod,GrandTotal\n';
+    generated.forEach((item) => {
+      csv += `"${item.invoiceNumber}","${item.customer.replace(/"/g, '""')}","${item.date}","${item.paymentMethod}","${item.grandTotal}"\n`;
+    });
+    batchState.ledgerCsv = csv;
+
+    if (batchState.totalMs) {
+      document.getElementById('batch-ms-stat').textContent = formatMs(batchState.totalMs);
+      document.getElementById('batch-per-doc').textContent = `${Math.round(batchState.perDocUs)} µs each`;
+      document.getElementById('batch-thru-stat').textContent = Number(batchState.pagesPerSec).toLocaleString();
+    }
+    document.getElementById('batch-slider').value = 1;
+    await onBatchSliderChange(1);
+  } catch (err) {
+    console.warn('Batch failed:', err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Render 100 PDFs again';
+  }
+}
+
+async function onBatchSliderChange(val) {
+  const idx = parseInt(val, 10);
+  batchState.currentIndex = idx;
+  if (!batchState.items || batchState.items.length === 0) batchState.items = generate100BatchItems(getFormData());
+  const item = batchState.items[idx - 1] || batchState.items[0];
+  if (!item) return;
+
+  document.getElementById('batch-counter').textContent = `${idx} of 100`;
+  document.getElementById('batch-cust').textContent = item.customer;
+  document.getElementById('batch-inv').textContent = `${item.invoiceNumber} · ${item.grandTotal}`;
+  document.getElementById('batch-item-meta').textContent = `${item.paymentMethod} · ${item.date}`;
+
+  if (!item.pdfBase64) {
+    if (window.VeloxPDF?.compilePdfTemplate) {
+      try {
+        const bytes = window.VeloxPDF.compilePdfTemplate(htmlEd.value, item.data)(item.data);
+        const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+        let bin = '';
+        for (let k = 0; k < u8.length; k++) bin += String.fromCharCode(u8[k]);
+        item.pdfBase64 = btoa(bin);
+      } catch {}
+    }
+    if (!item.pdfBase64) {
+      try {
+        const res = await fetch('/api/render', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html: htmlEd.value, data: item.data, sign: true }),
+        });
+        const out = await res.json();
+        if (out.pdfBase64) item.pdfBase64 = out.pdfBase64;
+      } catch {}
+    }
+  }
+
+  if (item.pdfBase64 && batchState.currentIndex === idx) {
+    showingBatchItem = true;
+    renderPdfBuffer(item.pdfBase64);
+    const fileName = `${item.invoiceNumber}-${item.customer.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+    setDownloadLink(item.pdfBase64, fileName);
+    const single = document.getElementById('btn-batch-dl-single');
+    single.href = `data:application/pdf;base64,${item.pdfBase64}`;
+    single.download = `${item.invoiceNumber}.pdf`;
+  }
+}
+
+function stepBatchSlider(delta) {
+  const slider = document.getElementById('batch-slider');
+  const nextVal = Math.max(1, Math.min(100, parseInt(slider.value, 10) + delta));
+  slider.value = nextVal;
+  onBatchSliderChange(nextVal);
+}
+
+function exportBatchCsv() {
+  if (!batchState.ledgerCsv) {
+    let csv = 'InvoiceNumber,CustomerName,Date,PaymentMethod,GrandTotal\n';
+    generate100BatchItems(getFormData()).forEach((item) => {
+      csv += `"${item.invoiceNumber}","${item.customer.replace(/"/g, '""')}","${item.date}","${item.paymentMethod}","${item.grandTotal}"\n`;
+    });
+    batchState.ledgerCsv = csv;
+  }
+  downloadText(batchState.ledgerCsv, 'velox-100-batch-ledger.csv', 'text/csv;charset=utf-8;');
+}
+
+// ---------- Share or open ----------
+async function shareOrOpenPdf() {
+  if (!currentPdfBase64) return;
+  const pdfBytes = base64ToBytes(currentPdfBase64);
+  const file = new File([pdfBytes], 'velox-document.pdf', { type: 'application/pdf' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ title: 'VeloxPDF document', files: [file] });
+      return;
+    } catch (e) {
+      if (e.name !== 'AbortError') console.warn('Share failed:', e);
+      else return;
+    }
+  }
+  const url = URL.createObjectURL(new Blob([pdfBytes], { type: 'application/pdf' }));
+  const win = window.open(url, '_blank');
+  if (!win) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'velox-document.pdf';
+    a.click();
+  }
+}
+
+// ---------- E-invoice mode (runs fully in the browser engine) ----------
+async function getEngine() {
+  await engineReady;
+  if (!window.VeloxPDF || !window.VeloxPDF.renderEInvoice) throw new Error('The browser engine is not available');
+  return window.VeloxPDF;
+}
+const einv = { key: null, profile: 'EN16931', last: null, errors: [], fontsReady: null };
+const PROFILE_LABEL = { MINIMUM: 'MINIMUM', BASICWL: 'BASIC WL', BASIC: 'BASIC', EN16931: 'EN 16931', XRECHNUNG: 'XRechnung' };
+const TEMPLATE_NOTE = 'Scripts in a template run as written. Use trusted templates only.';
+
+async function enterEInvoice(key) {
+  const V = await getEngine();
+  const ex = V.EINVOICE_EXAMPLES[key];
+  if (!ex) return;
+  mode = 'einvoice';
+  document.body.dataset.mode = 'einvoice';
+  einv.key = key;
+  einv.profile = ex.profile;
+  einv.errors = [];
+  document.getElementById('einv-profile').value = ex.profile;
+  jsonEd.value = JSON.stringify(ex.invoice, null, 2);
+  htmlEd.readOnly = true;
+  document.getElementById('html-note').textContent = 'Generated from the invoice. Read only; edit the invoice JSON instead.';
+  document.getElementById('tab-data').textContent = 'Invoice';
+  currentSignatureInfo = null;
+  setTemplateTab('data');
+  if (currentInspectorTab === 'batch' || currentInspectorTab === 'signature') setInspectorTab('einvoice');
+  compileNow();
+}
+
+function leaveEInvoice() {
+  mode = 'template';
+  delete document.body.dataset.mode;
+  htmlEd.readOnly = false;
+  document.getElementById('html-note').textContent = TEMPLATE_NOTE;
+  document.getElementById('tab-data').textContent = 'Data';
+  setDataMode(currentDataMode);
+  setTemplateTab('html');
+  if (currentInspectorTab === 'einvoice') setInspectorTab('signature');
+}
+
+function onProfileChange(value) {
+  einv.profile = value;
+  compileNow();
+}
+
+function ensureFonts(V) {
+  if (!einv.fontsReady) {
+    setEinvStatus('loading');
+    einv.fontsReady = Promise.all(V.PDFA_FONT_FILES.map(async (f) => {
+      const r = await fetch(`fonts/${encodeURIComponent(f)}`);
+      if (!r.ok) throw new Error(`fonts/${f} returned ${r.status}`);
+      V.registerFontData(f, new Uint8Array(await r.arrayBuffer()));
+    }));
+    einv.fontsReady.catch(() => { einv.fontsReady = null; });
+  }
+  return einv.fontsReady;
+}
+
+function bytesToBase64(u8) {
+  let bin = '';
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+async function compileEInvoice() {
+  const seq = ++compileSeq;
+  let invoice;
+  try { invoice = JSON.parse(jsonEd.value); } catch (e) {
+    return showEinvErrors([{ term: 'JSON', message: `The JSON is not valid. ${e.message}` }]);
+  }
+  let V;
+  try { V = await getEngine(); } catch (e) { return showEinvErrors([{ term: 'Engine', message: 'The browser engine could not load.' }]); }
+  const profile = einv.profile;
+  let errors = [];
+  try { errors = V.validateInvoice(invoice, profile) || []; } catch (e) { errors = [{ term: 'Data', message: String(e.message || e) }]; }
+  if (errors.length) return showEinvErrors(errors);
+  try { await ensureFonts(V); } catch (e) {
+    return showEinvErrors([{ term: 'Fonts', message: 'The PDF/A fonts could not be loaded from the fonts folder.' }]);
+  }
+  if (seq !== compileSeq || mode !== 'einvoice') return;
+  let out;
+  const t0 = performance.now();
+  try { out = V.renderEInvoice(invoice, { profile }); } catch (e) {
+    return showEinvErrors([{ term: 'Render', message: String(e.message || e) }]);
+  }
+  const ms = performance.now() - t0;
+  const raw = out && out.pdfBytes ? out.pdfBytes : out;
+  const u8 = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
+  const totals = out.totals || V.computeTotals(invoice);
+  const embedding = (V.EINVOICE_PDF_EMBEDDING || {})[profile] || { fileName: 'factur-x.xml', conformanceLevel: profile };
+  let html = '';
+  try { html = V.buildInvoiceHtml(invoice, totals, { profile, conformanceLevel: embedding.conformanceLevel }); } catch {}
+  einv.last = { xml: out.xml, totals, profile, embedding, number: invoice.number || 'e-invoice', ms };
+  einv.errors = [];
+
+  const b64 = bytesToBase64(u8);
+  currentPdfBase64 = b64;
+  currentSignatureInfo = null;
+  isTampered = false;
+  showingBatchItem = false;
+  setDownloadLink(b64, `${einv.last.number}.pdf`);
+  renderPdfBuffer(b64);
+  if (html) setHtml(html);
+  document.getElementById('m-render').textContent = formatMs(ms);
+  document.getElementById('m-size').textContent = `${(u8.length / 1024).toFixed(1)} KB`;
+  document.getElementById('engine-note').textContent = 'Rendered in browser';
+  updateEinvPanel();
+}
+
+function showEinvErrors(errors) {
+  einv.errors = errors;
+  updateEinvPanel();
+}
+
+function setEinvStatus(state) {
+  const card = document.getElementById('einv-status');
+  const title = document.getElementById('einv-status-title');
+  const sub = document.getElementById('einv-status-sub');
+  const chip = document.getElementById('einv-chip');
+  const chipText = document.getElementById('einv-chip-text');
+  chip.classList.remove('is-signed', 'is-broken');
+  if (state === 'loading') {
+    card.className = 'status-card';
+    title.textContent = 'Loading fonts';
+    sub.textContent = 'PDF/A embeds its fonts. This happens once.';
+    chipText.textContent = 'Loading fonts';
+    document.getElementById('m-render').textContent = 'Loading';
+  } else if (state === 'error') {
+    const n = einv.errors.length;
+    card.className = 'status-card is-rejected';
+    title.textContent = n === 1 ? '1 problem in the invoice' : `${n} problems in the invoice`;
+    sub.textContent = einv.last ? 'The preview keeps the last valid version.' : 'Fix it to see the preview.';
+    chip.classList.add('is-broken');
+    chipText.textContent = n === 1 ? '1 problem' : `${n} problems`;
+  } else {
+    const L = einv.last;
+    card.className = 'status-card is-valid';
+    title.textContent = 'Valid e-invoice';
+    sub.textContent = `XML embedded as ${L.embedding.fileName}. Rendered in this browser.`;
+    chip.classList.add('is-signed');
+    chipText.textContent = L.profile === 'XRECHNUNG' ? 'PDF/A-3b · XRechnung' : `PDF/A-3b · Factur-X ${L.embedding.conformanceLevel}`;
+  }
+}
+
+function money(v, cur) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return String(v ?? '');
+  try { return n.toLocaleString('en-US', { style: 'currency', currency: cur || 'EUR' }); } catch { return `${n.toFixed(2)} ${cur || ''}`; }
+}
+
+function updateEinvPanel() {
+  const list = document.getElementById('einv-errors');
+  list.innerHTML = '';
+  if (einv.errors.length) {
+    einv.errors.forEach((e) => {
+      const msg = String(e.message || '').replace(/^BT-\d+\s+/, '');
+      list.appendChild(el('li', {}, [el('code', { text: e.term || '' }), el('span', { text: msg })]));
+    });
+    list.hidden = false;
+    setEinvStatus('error');
+  } else {
+    list.hidden = true;
+  }
+  const L = einv.last;
+  if (!L) return;
+  if (!einv.errors.length) setEinvStatus('ok');
+  document.getElementById('einv-ms').textContent = einv.errors.length ? '' : formatMs(L.ms);
+  document.getElementById('einv-profile-val').textContent = PROFILE_LABEL[L.profile] || L.profile;
+  document.getElementById('einv-level').textContent = L.profile === 'XRECHNUNG' ? 'PDF/A-3b, XRechnung 3.0 (CII)' : `PDF/A-3b, Factur-X ${L.embedding.conformanceLevel}`;
+  document.getElementById('einv-file').textContent = L.embedding.fileName;
+  document.getElementById('einv-xml-label').textContent = L.embedding.fileName;
+  document.getElementById('einv-xml').textContent = L.xml || '';
+  const t = L.totals, cur = t.currency;
+  const rows = [
+    ['Lines', t.lineTotal], ['Allowances', t.allowanceTotal], ['Charges', t.chargeTotal],
+    ['Tax basis', t.taxBasisTotal], ['VAT', t.taxTotal], ['Total', t.grandTotal], ['Due', t.duePayable],
+  ];
+  const dl = document.getElementById('einv-totals');
+  dl.innerHTML = '';
+  rows.forEach(([k, v]) => {
+    if (v === undefined) return;
+    dl.appendChild(el('dt', { text: k }));
+    dl.appendChild(el('dd', { class: `amount${k === 'Total' || k === 'Due' ? ' strong' : ''}`, text: money(v, cur), 'data-raw': String(v), id: `einv-t-${k.toLowerCase().replace(/\s+/g, '-')}` }));
+  });
+}
+
+function copyEInvoiceXml() {
+  if (!einv.last) return;
+  const btn = document.getElementById('btn-copy-xml');
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(einv.last.xml).then(() => {
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = 'Copy XML'; }, 1400);
+  }, () => {});
+}
+
+function downloadEInvoiceXml() {
+  if (!einv.last) return;
+  downloadText(einv.last.xml, `${einv.last.number}-${einv.last.embedding.fileName}`, 'application/xml;charset=utf-8');
+}
+
+// ---------- Browser engine ----------
+// engineReady is declared near the top of this script so offline renders can wait for it.
+resolveEngineReady(
+  import('./veloxpdf.browser.js')
+    .catch(() => import('/veloxpdf.browser.js'))
+    .then((mod) => { window.VeloxPDF = mod.default || mod; })
+    .catch((err) => { console.info('Browser engine not available; using the server.', err?.message || err); }),
+);
+
+setupDragAndDrop();
+</script>
+</body>
+</html>
