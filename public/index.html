@@ -1339,6 +1339,14 @@ function rebuildVisualForm() {
   }
 }
 
+// On a static host there is no server, so answer /api calls locally with a 404 instead of a
+// network request. Every caller already falls back to the browser engine on a non-ok response.
+const STATIC_HOST = location.protocol === 'file:' || location.hostname.endsWith('.github.io');
+function apiFetch(url, init) {
+  if (STATIC_HOST) return Promise.resolve(new Response(null, { status: 404 }));
+  return fetch(url, init);
+}
+
 // Resolves once the browser engine module has loaded (or failed to load).
 let resolveEngineReady;
 const engineReady = new Promise((resolve) => { resolveEngineReady = (p) => p.then(resolve, resolve); });
@@ -1349,7 +1357,7 @@ const engineReady = new Promise((resolve) => { resolveEngineReady = (p) => p.the
 let staticPresets = null;
 async function loadPreset(presetId) {
   try {
-    const res = await fetch(`/api/defaults?preset=${encodeURIComponent(presetId)}`);
+    const res = await apiFetch(`/api/defaults?preset=${encodeURIComponent(presetId)}`);
     if (res.ok) return await res.json();
   } catch {}
   if (!staticPresets) {
@@ -1456,7 +1464,7 @@ async function compileNow() {
   const sign = document.getElementById('chk-sign').checked;
 
   try {
-    const res = await fetch('/api/render', {
+    const res = await apiFetch('/api/render', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ html: htmlEd.value, data: dataVal, sign }),
@@ -1686,7 +1694,7 @@ function updateTamperInspectorUI(info, tampered = false, verifyMs = null) {
 async function runTamperTest(mutate) {
   if (!currentPdfBase64) return;
   try {
-    const res = await fetch('/api/verify', {
+    const res = await apiFetch('/api/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pdfBase64: currentPdfBase64, tamper1Byte: mutate, tamperOffset: 32 }),
@@ -1707,7 +1715,7 @@ async function runLiveBenchmark() {
   btn.disabled = true;
   btn.textContent = 'Running 50 renders';
   try {
-    const res = await fetch('/api/benchmark', {
+    const res = await apiFetch('/api/benchmark', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ iterations: 50, html: htmlEd.value, data: getFormData() }),
@@ -1806,7 +1814,7 @@ async function handlePdfFile(file) {
 
   let inspectResult = null;
   try {
-    const res = await fetch('/api/inspect-pdf', {
+    const res = await apiFetch('/api/inspect-pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pdfBase64: base64, fileName: file.name }),
@@ -1967,7 +1975,7 @@ async function runBatchMailMerge() {
   try {
     let out = null;
     try {
-      const res = await fetch('/api/batch', {
+      const res = await apiFetch('/api/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ html: htmlTemplate, baseData, count: 100 }),
@@ -2055,7 +2063,7 @@ async function onBatchSliderChange(val) {
     }
     if (!item.pdfBase64) {
       try {
-        const res = await fetch('/api/render', {
+        const res = await apiFetch('/api/render', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ html: htmlEd.value, data: item.data, sign: true }),
