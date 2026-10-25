@@ -2283,8 +2283,24 @@ async function compileEInvoice() {
   }
   const ms = performance.now() - t0;
   const raw = out && out.pdfBytes ? out.pdfBytes : out;
-  const u8 = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
+  let u8 = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
   const totals = out.totals || V.computeTotals(invoice);
+  // Sign like template mode does, so the tamper test works on e-invoices too. The signature
+  // is an incremental update, so the PDF/A-3 file and its embedded XML stay as they are.
+  let signatureInfo = null;
+  let signMs = 0;
+  if (document.getElementById('chk-sign').checked && V.signPdfAsync) {
+    const s0 = performance.now();
+    try {
+      const signed = await V.signPdfAsync(u8);
+      u8 = signed instanceof Uint8Array ? signed : new Uint8Array(signed);
+      signMs = +(performance.now() - s0).toFixed(2);
+      signatureInfo = await V.verifyPdfSignatureAsync(u8);
+    } catch (err) {
+      signatureInfo = { valid: false, error: 'Signing failed in the browser engine: ' + String(err?.message || err) };
+    }
+    if (seq !== compileSeq || mode !== 'einvoice') return;
+  }
   const embedding = (V.EINVOICE_PDF_EMBEDDING || {})[profile] || { fileName: 'factur-x.xml', conformanceLevel: profile };
   let html = '';
   try { html = V.buildInvoiceHtml(invoice, totals, { profile, conformanceLevel: embedding.conformanceLevel }); } catch {}
@@ -2293,9 +2309,12 @@ async function compileEInvoice() {
 
   const b64 = bytesToBase64(u8);
   currentPdfBase64 = b64;
-  currentSignatureInfo = null;
+  currentSignatureInfo = signatureInfo;
+  currentSignMs = signMs;
   isTampered = false;
   showingBatchItem = false;
+  updateSigBadge();
+  if (currentInspectorTab === 'signature') updateTamperInspectorUI(currentSignatureInfo, false);
   setDownloadLink(b64, `${einv.last.number}.pdf`);
   renderPdfBuffer(b64);
   if (html) setHtml(html);
