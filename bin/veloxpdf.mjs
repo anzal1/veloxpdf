@@ -10,7 +10,12 @@ import {
   verifyPdfSignature,
   generateSelfSignedCert,
   compilePdfTemplate,
+  extractEmbeddedData,
+  renderEInvoice,
+  validateInvoice,
+  EINVOICE_EXAMPLES,
 } from '../src/index.mjs';
+import zlib from 'node:zlib';
 // server.mjs generates a key and loads the Studio on import, so it is loaded only where needed.
 const loadServer = () => import('../server.mjs');
 
@@ -19,14 +24,16 @@ const command = args[0];
 
 function printHelp() {
   console.log(`
-\x1b[1m\x1b[36mVeloxPDF\x1b[0m — Zero-Chromium HTML/CSS/Tailwind/Canvas2D to Signed Vector PDF 1.7
+\x1b[1m\x1b[36mVeloxPDF\x1b[0m: HTML, CSS and Tailwind to signed PDF, and EU e-invoices, without a browser
 
 \x1b[1mUSAGE\x1b[0m
   $ veloxpdf <command> [options]
 
 \x1b[1mCOMMANDS\x1b[0m
   \x1b[32mrender\x1b[0m <input.html> -o <out.pdf>   Compile HTML to native Vector PDF 1.7
+  \x1b[32meinvoice\x1b[0m <invoice.json> -o <out.pdf> Build a Factur-X / ZUGFeRD / XRechnung PDF
   \x1b[32mverify\x1b[0m <file.pdf>                   Verify ISO 32000-1 X.509 PKCS#7 signature
+  \x1b[32mextract\x1b[0m <file.pdf> [-o <file>]       Pull the embedded JSON or e-invoice XML out of a PDF
   \x1b[32mbench\x1b[0m                               Run live cold vs. warm vs. parametric benchmarks
   \x1b[32mserve\x1b[0m [--port 8585]                Launch VeloxPDF Studio Web UI
 
@@ -42,11 +49,20 @@ function printHelp() {
   --format <format>           Page format: A4, Letter, Legal, etc. (default: A4)
   --single-page               Force entire content onto a single page
   --compress                  Compress content streams with FlateDecode
+  --ttf <file.ttf[:Family]>   Embed a TrueType font (family defaults to the file name before "-")
+
+\x1b[1mEINVOICE OPTIONS\x1b[0m
+  --example <name>            Write a starter invoice JSON instead (${Object.keys(EINVOICE_EXAMPLES).join(', ')})
+  --profile <profile>         MINIMUM, BASICWL, BASIC, EN16931 (default) or XRECHNUNG
+  -s, --sign                  Sign the e-invoice as well
 
 \x1b[1mEXAMPLES\x1b[0m
+  $ veloxpdf einvoice --example germanB2B -o invoice.json
+  $ veloxpdf einvoice invoice.json -o invoice.pdf
   $ veloxpdf render invoice.html -o invoice.pdf --data data.json --sign
   $ veloxpdf render report.html -o report.pdf --header "CONFIDENTIAL" --footer "Page {{page}} of {{pages}}"
   $ veloxpdf verify signed-invoice.pdf
+  $ veloxpdf extract invoice.pdf -o factur-x.xml
   $ veloxpdf bench
   $ veloxpdf serve --port 8585
 `);
@@ -118,8 +134,21 @@ async function runRender(cmdArgs) {
   const singlePage = Boolean(flags['single-page']);
   const compress = Boolean(flags.compress);
 
+  // --ttf Inter-Regular.ttf registers family "Inter"; --ttf path.ttf:Family names it explicitly.
+  let fonts;
+  if (typeof flags.ttf === 'string') {
+    const [ttfPath, family] = flags.ttf.split(/:(?=[^\\/]*$)/);
+    if (!fs.existsSync(ttfPath)) {
+      console.error(`\x1b[31mError:\x1b[0m Font file not found: ${ttfPath}`);
+      process.exit(1);
+    }
+    const name = family || path.basename(ttfPath, path.extname(ttfPath)).split('-')[0];
+    fonts = { [name]: fs.readFileSync(ttfPath) };
+  }
+
   const t0 = performance.now();
   const renderRes = htmlToPdf(htmlContent, {
+    fonts,
     data: dataObj,
     format,
     singlePage,
@@ -144,7 +173,7 @@ async function runRender(cmdArgs) {
       keyPem: defaultCert.keyPem,
       signerName: flags.signer || 'VeloxPDF Authority',
       reason: flags.reason || 'Cryptographic Document Attestation',
-      location: flags.location || 'San Francisco, US',
+      location: flags.location || '',
     });
     signMs = performance.now() - ts0;
     sigDetails = verifyPdfSignature(finalBytes);
@@ -163,6 +192,100 @@ async function runRender(cmdArgs) {
     console.log(`  \x1b[1mX.509 Sign:\x1b[0m  ${signMs.toFixed(3)} ms (\x1b[32m${sigDetails?.valid ? 'VERIFIED' : 'PENDING'}\x1b[0m · ${flags.signer || 'VeloxPDF Authority'})`);
   }
   console.log(`  \x1b[1mTotal Time:\x1b[0m  ${totalMs} ms`);
+}
+
+// CMS signing times are ASN.1 UTCTime (YYMMDDHHMMSSZ) or GeneralizedTime (YYYYMMDDHHMMSSZ).
+function formatSigningTime(raw) {
+  const m = /^(\d{2}|\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z$/.exec(String(raw));
+  if (!m) return String(raw);
+  const year = m[1].length === 2 ? (Number(m[1]) < 50 ? 2000 : 1900) + Number(m[1]) : Number(m[1]);
+  return `${year}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]} UTC`;
+}
+
+// Embedded files in our PDFs are JSON (velox-payload.json) or CII XML (factur-x.xml / xrechnung.xml).
+function extractEmbeddedText(buf) {
+  const json = extractEmbeddedData(buf);
+  if (json) return { text: JSON.stringify(json, null, 2), kind: 'json' };
+  const ef = buf.indexOf(Buffer.from('/Type /EmbeddedFile'));
+  if (ef === -1) return null;
+  let start = buf.indexOf(Buffer.from('stream'), ef);
+  if (start === -1) return null;
+  start += 6;
+  if (buf[start] === 0x0d && buf[start + 1] === 0x0a) start += 2;
+  else if (buf[start] === 0x0a) start += 1;
+  const end = buf.indexOf(Buffer.from('endstream'), start);
+  if (end === -1) return null;
+  let raw = buf.subarray(start, end);
+  try { raw = zlib.inflateSync(raw); } catch {}
+  const text = raw.toString('utf8').trim();
+  return { text, kind: text.startsWith('<') ? 'xml' : 'text' };
+}
+
+async function runExtract(cmdArgs) {
+  const flags = parseFlags(cmdArgs);
+  const pdfFile = flags._[0];
+  if (!pdfFile || !fs.existsSync(pdfFile)) {
+    console.error(`\x1b[31mError:\x1b[0m ${pdfFile ? `File not found: ${pdfFile}` : 'Missing PDF file path.'}`);
+    console.error('Usage: veloxpdf extract <file.pdf> [-o out.json|out.xml]');
+    process.exit(1);
+  }
+  const found = extractEmbeddedText(fs.readFileSync(pdfFile));
+  if (!found) {
+    console.error('\x1b[31mError:\x1b[0m This PDF has no embedded data.');
+    process.exit(1);
+  }
+  const out = flags.o || flags.output;
+  if (out) {
+    fs.writeFileSync(out, found.text + '\n');
+    console.log(`\x1b[32m✔\x1b[0m Wrote embedded ${found.kind.toUpperCase()} to ${path.resolve(out)}`);
+  } else {
+    process.stdout.write(found.text + '\n');
+  }
+}
+
+async function runEInvoice(cmdArgs) {
+  const flags = parseFlags(cmdArgs);
+  const out = flags.o || flags.output;
+  if (flags.example) {
+    const ex = EINVOICE_EXAMPLES[flags.example === true ? 'germanB2B' : flags.example];
+    if (!ex) {
+      console.error(`\x1b[31mError:\x1b[0m Unknown example. Choose one of: ${Object.keys(EINVOICE_EXAMPLES).join(', ')}`);
+      process.exit(1);
+    }
+    const target = out || 'invoice.json';
+    fs.writeFileSync(target, JSON.stringify(ex.invoice, null, 2) + '\n');
+    console.log(`\x1b[32m✔\x1b[0m Wrote a starter invoice to ${path.resolve(target)}`);
+    console.log(`  Edit it, then run: veloxpdf einvoice ${target} -o invoice.pdf${ex.profile && ex.profile !== 'EN16931' ? ` --profile ${ex.profile}` : ''}`);
+    return;
+  }
+  const inFile = flags._[0];
+  if (!inFile || !fs.existsSync(inFile)) {
+    console.error(`\x1b[31mError:\x1b[0m ${inFile ? `File not found: ${inFile}` : 'Missing invoice JSON file.'}`);
+    console.error('Usage: veloxpdf einvoice <invoice.json> -o invoice.pdf   (or --example germanB2B for a starter file)');
+    process.exit(1);
+  }
+  let invoice;
+  try {
+    invoice = JSON.parse(fs.readFileSync(inFile, 'utf8'));
+  } catch (err) {
+    console.error(`\x1b[31mError:\x1b[0m ${inFile} is not valid JSON (${err.message})`);
+    process.exit(1);
+  }
+  const profile = typeof flags.profile === 'string' ? flags.profile : 'EN16931';
+  const problems = validateInvoice(invoice, profile) || [];
+  if (problems.length) {
+    console.error(`\x1b[31m✖ The invoice is missing ${problems.length} required field${problems.length === 1 ? '' : 's'} for ${profile}:\x1b[0m`);
+    for (const p of problems) console.error(`  - ${p.message || p}`);
+    process.exit(1);
+  }
+  const t0 = performance.now();
+  const pdf = renderEInvoice(invoice, { profile, sign: Boolean(flags.sign || flags.s) });
+  const ms = (performance.now() - t0).toFixed(1);
+  const target = out || inFile.replace(/\.json$/i, '') + '.pdf';
+  fs.writeFileSync(target, pdf);
+  console.log(`\x1b[32m✔\x1b[0m ${path.resolve(target)}`);
+  console.log(`  PDF/A-3b with the ${profile} XML embedded, ${(pdf.length / 1024).toFixed(1)} KB, ${ms} ms`);
+  if (pdf.totals?.grandTotal) console.log(`  Total due: ${pdf.totals.grandTotal} ${invoice.currency || ''}`.trimEnd());
 }
 
 async function runVerify(cmdArgs) {
@@ -191,7 +314,7 @@ async function runVerify(cmdArgs) {
     console.log(`  \x1b[1mSigner:\x1b[0m      ${res.signerName || 'VeloxPDF Authority'}`);
     console.log(`  \x1b[1mReason:\x1b[0m      ${res.reason || 'Cryptographic Attestation'}`);
     if (res.location) console.log(`  \x1b[1mLocation:\x1b[0m    ${res.location}`);
-    if (res.signedAt || res.signingTime) console.log(`  \x1b[1mSigned At:\x1b[0m   ${res.signedAt || res.signingTime}`);
+    if (res.signedAt || res.signingTime) console.log(`  \x1b[1mSigned At:\x1b[0m   ${formatSigningTime(res.signedAt || res.signingTime)}`);
     if (res.byteRange) console.log(`  \x1b[1mByteRange:\x1b[0m   [${res.byteRange.join(', ')}]`);
     console.log(`  \x1b[1mSubFilter:\x1b[0m   ${res.subFilter || 'adbe.pkcs7.detached'}`);
     if (res.digestHex) console.log(`  \x1b[1mSHA-256:\x1b[0m     ${res.digestHex.slice(0, 32)}...`);
@@ -288,6 +411,13 @@ switch (command) {
     break;
   case 'verify':
     await runVerify(args.slice(1));
+    break;
+  case 'extract':
+    await runExtract(args.slice(1));
+    break;
+  case 'einvoice':
+  case 'e-invoice':
+    await runEInvoice(args.slice(1));
     break;
   case 'bench':
   case 'benchmark':

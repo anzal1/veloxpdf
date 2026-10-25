@@ -13598,7 +13598,7 @@ const buildIncrementalXrefSubsections = formatIncrementalXref;
 function signPdf(pdfBytes, options = {}) {
   const signerName = options.signerName || 'VeloxPDF Authority';
   const reason = options.reason || 'Cryptographic Attestation';
-  const location = options.location || 'San Francisco, US';
+  const location = options.location || '';
 
   const now = options.signingTime instanceof Date ? options.signingTime : new Date();
   const pad = (n) => String(n).padStart(2, '0');
@@ -14112,7 +14112,7 @@ async function signPdfAsync(pdfBytes, options = {}) {
 
   const signerName = options.signerName || 'VeloxPDF Authority';
   const reason = options.reason || 'Cryptographic Attestation';
-  const location = options.location || 'San Francisco, US';
+  const location = options.location || '';
 
   const now = options.signingTime instanceof Date ? options.signingTime : new Date();
   const pad = (n) => String(n).padStart(2, '0');

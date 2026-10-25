@@ -1971,32 +1971,33 @@ function exportFacturXCsv() {
 }
 
 // ---------- Batch ----------
+// Fictional customers for the batch demo
 const BATCH_ENTERPRISE_NAMES = [
-  'Stripe Global Inc.', 'OpenAI Technologies', 'Vercel Edge Systems', 'Supabase Cloud Inc.',
-  'Datadog Observability', 'Anthropic PBC', 'Cloudflare Networks', 'Shopify Commerce',
-  'GitHub Operations', 'Figma Design Labs', 'Linear Software Inc.', 'Notion Labs Corp',
-  'Retool Enterprise', 'Snowflake Data Inc.', 'Palantir Technologies', 'Scale AI Inc.',
-  'Ramp Financial', 'Brex Corporate Pay', 'Coinbase Global', 'Databricks Cloud',
-  'MongoDB Atlas', 'Postman API Platform', 'Twilio Communications', 'Elasticsearch Systems',
-  'HashiCorp Infrastructure', 'GitLab Enterprise', 'Atlassian Cloud', 'Canva Creative',
-  'Discord Platform', 'Framer Interactive', 'Plaid FinTech Inc.', 'Zapier Automation',
-  'Airtable Systems', 'Sentry Telemetry Inc.', 'LaunchDarkly Flags', 'Segment CDP',
-  'Kaggle Data Labs', 'Weights & Biases', 'Cohere Technologies', 'Mistral AI Global',
-  'Perplexity AI Corp', 'Midjourney Labs', 'Runway AI Systems', 'EleutherAI Research',
-  'Hugging Face Community', 'Anyscale Ray Cloud', 'Modal Labs Edge', 'Fly.io Systems',
-  'Railway Cloud Corp', 'Render Deployment', 'Neon Postgres', 'PlanetScale MySQL',
-  'Upstash Serverless', 'Pinecone Vector DB', 'Weaviate AI Engine', 'Qdrant Vector Inc.',
-  'Chroma Cloud Systems', 'LangChain Frameworks', 'LlamaIndex Enterprise', 'Cerebras Systems',
-  'Groq Inference Labs', 'Together AI Cloud', 'Replicate Models', 'OctoAI Inference',
-  'Baseten Systems', 'Fal.ai Realtime', 'Cursor AI Tools', 'Superhuman Mail',
-  'Raycast Systems', 'Arc Browser / The Browser Co', 'Tailscale WireGuard', '1Password Enterprise',
-  'Okta Identity Cloud', 'Wiz Cloud Security', 'CrowdStrike Falcon', 'Cloudflare Workers',
-  'Fastly Edge Compute', 'Akamai Technologies', 'DigitalOcean Cloud', 'Linode Infrastructure',
-  'Hetzner Online GmbH', 'OVHcloud SAS', 'Scaleway Elements', 'CoreWeave GPU Cloud',
-  'Lambda Labs GPU', 'Crusoe Energy Cloud', 'Nebius AI Cloud', 'FluidStack GPU',
-  'Latitude SH Cloud', 'Equinix Metal', 'Iron Mountain Storage', 'PagerDuty Incident',
-  'Datadog Security', 'Grafana Labs Observability', 'Splunk Enterprise', 'Dynatrace Intelligence',
-  'New Relic Systems', 'Honeycomb Observability', 'Checkly Synthetics', 'Better Stack Cloud'
+  'Northwind Robotics Inc.', 'Bluefin Foods LLC', 'Copperleaf Health Co.', 'Harborline Systems Inc.',
+  'Juniper Analytics LLC', 'Kestrel Energy Co.', 'Lumen Labs Inc.', 'Meridian Logistics LLC',
+  'Oakridge Studios Co.', 'Pinecrest Freight Inc.', 'Quarry Robotics LLC', 'Redwood Foods Co.',
+  'Saltmarsh Health Inc.', 'Tidewater Systems LLC', 'Umber Analytics Co.', 'Vantage Energy Inc.',
+  'Westbrook Labs LLC', 'Yellowtail Logistics Co.', 'Alderbank Studios Inc.', 'Brightwater Freight LLC',
+  'Northwind Logistics Co.', 'Bluefin Studios Inc.', 'Copperleaf Freight LLC', 'Harborline Robotics Co.',
+  'Juniper Foods Inc.', 'Kestrel Health LLC', 'Lumen Systems Co.', 'Meridian Analytics Inc.',
+  'Oakridge Energy LLC', 'Pinecrest Labs Co.', 'Quarry Logistics Inc.', 'Redwood Studios LLC',
+  'Saltmarsh Freight Co.', 'Tidewater Robotics Inc.', 'Umber Foods LLC', 'Vantage Health Co.',
+  'Westbrook Systems Inc.', 'Yellowtail Analytics LLC', 'Alderbank Energy Co.', 'Brightwater Labs Inc.',
+  'Northwind Analytics LLC', 'Bluefin Energy Co.', 'Copperleaf Labs Inc.', 'Harborline Logistics LLC',
+  'Juniper Studios Co.', 'Kestrel Freight Inc.', 'Lumen Robotics LLC', 'Meridian Foods Co.',
+  'Oakridge Health Inc.', 'Pinecrest Systems LLC', 'Quarry Analytics Co.', 'Redwood Energy Inc.',
+  'Saltmarsh Labs LLC', 'Tidewater Logistics Co.', 'Umber Studios Inc.', 'Vantage Freight LLC',
+  'Westbrook Robotics Co.', 'Yellowtail Foods Inc.', 'Alderbank Health LLC', 'Brightwater Systems Co.',
+  'Northwind Foods Inc.', 'Bluefin Health LLC', 'Copperleaf Systems Co.', 'Harborline Analytics Inc.',
+  'Juniper Energy LLC', 'Kestrel Labs Co.', 'Lumen Logistics Inc.', 'Meridian Studios LLC',
+  'Oakridge Freight Co.', 'Pinecrest Robotics Inc.', 'Quarry Foods LLC', 'Redwood Health Co.',
+  'Saltmarsh Systems Inc.', 'Tidewater Analytics LLC', 'Umber Energy Co.', 'Vantage Labs Inc.',
+  'Westbrook Logistics LLC', 'Yellowtail Studios Co.', 'Alderbank Freight Inc.', 'Brightwater Robotics LLC',
+  'Northwind Studios Co.', 'Bluefin Freight Inc.', 'Copperleaf Robotics LLC', 'Harborline Foods Co.',
+  'Juniper Health Inc.', 'Kestrel Systems LLC', 'Lumen Analytics Co.', 'Meridian Energy Inc.',
+  'Oakridge Labs LLC', 'Pinecrest Logistics Co.', 'Quarry Studios Inc.', 'Redwood Freight LLC',
+  'Saltmarsh Robotics Co.', 'Tidewater Foods Inc.', 'Umber Health LLC', 'Vantage Systems Co.',
+  'Westbrook Analytics Inc.', 'Yellowtail Energy LLC', 'Alderbank Labs Co.', 'Brightwater Logistics Inc.'
 ];
 
 let batchState = { active: false, count: 100, currentIndex: 1, items: [], totalMs: 0, perDocUs: 0, pagesPerSec: 0, ledgerCsv: '' };

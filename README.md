@@ -9,7 +9,7 @@
 [![PDF/A-3b](https://img.shields.io/badge/PDF%2FA--3b-veraPDF%20pass-indigo.svg)](#e-invoices-in-one-call)
 [![Factur-X / ZUGFeRD / XRechnung](https://img.shields.io/badge/EN%2016931-Factur--X%20%C2%B7%20ZUGFeRD%20%C2%B7%20XRechnung-emerald.svg)](#e-invoices-in-one-call)
 
-**[Try the Studio in your browser](https://anzal1.github.io/veloxpdf/)**: edit an invoice and watch the PDF and the embedded XML update. Everything runs in your tab; nothing is uploaded.
+**[Try the Studio in your browser](https://anzal1.github.io/veloxpdf/?example=germanB2B)**: edit an invoice and watch the PDF and the embedded XML update. Everything runs in your tab; nothing is uploaded.
 
 ```bash
 npm install github:anzal1/veloxpdf
@@ -233,40 +233,31 @@ One compiled template renders 100 different customer invoices in about 1.0 ms to
 Drag any `.pdf` onto the Studio window, or upload it via `POST /api/inspect-pdf`. The engine checks the X.509 PKCS#7 signature (about 0.07 ms) and reads the embedded `velox-payload.json` into structured data and an exportable CSV table, with no OCR.
 
 ---
-## CLI Installation & Usage
+## Command line
 
-VeloxPDF ships with a command-line interface:
+The package ships a `veloxpdf` command. After `npm install github:anzal1/veloxpdf`, run it with `npx`:
 
 ```bash
-# Clone and link locally
-cd veloxpdf
-npm link
+# Make an e-invoice: write a starter invoice, edit it, then build the PDF
+npx veloxpdf einvoice --example germanB2B -o invoice.json
+npx veloxpdf einvoice invoice.json -o invoice.pdf
 
-# 1. Compile HTML to Signed Vector PDF
-veloxpdf render invoice.html -o invoice.pdf --data data.json --sign
+# Any HTML template to a signed PDF
+npx veloxpdf render invoice.html -o invoice.pdf --data data.json --sign
 
-# 2. Add Running Headers & Footers across Multi-Page Tables
-veloxpdf render ledger.html -o ledger.pdf \
-  --header "CONFIDENTIAL AUDIT LEDGER" \
-  --footer "Page {{page}} of {{pages}}"
+# Running headers and footers across multi-page tables
+npx veloxpdf render ledger.html -o ledger.pdf --header "AUDIT LEDGER" --footer "Page {{page}} of {{pages}}"
 
-# 3. Embed Custom TrueType Font
-veloxpdf render document.html -o document.pdf --ttf Inter-Regular.ttf
+# Embed your own TrueType font
+npx veloxpdf render document.html -o document.pdf --ttf Inter-Regular.ttf
 
-# 4. Cryptographically Verify X.509 Signatures
-veloxpdf verify invoice.pdf
+# Check a signature, or pull the embedded JSON / e-invoice XML back out
+npx veloxpdf verify invoice.pdf
+npx veloxpdf extract invoice.pdf -o factur-x.xml
 
-# 5. Extract the embedded JSON payload (no OCR)
-veloxpdf extract invoice.pdf -o payload.json
-
-# 6. Run Live Performance Benchmarks
-veloxpdf bench --n 200
-
-# 7. Launch VeloxPDF Studio Web UI
-veloxpdf serve --port 8585
-
-# 8. Build Standalone Client-Side Browser Bundle
-npm run build:browser
+# Speed test on your machine, and the Studio on localhost:8585
+npx veloxpdf bench
+npx veloxpdf serve
 ```
 
 ---
